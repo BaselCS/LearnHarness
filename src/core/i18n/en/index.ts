@@ -7,11 +7,12 @@
 import { artifacts } from "./artifacts.ts";
 import { chat } from "./chat.ts";
 import { common } from "./common.ts";
+import { composer } from "./composer.ts";
 import { graph } from "./graph.ts";
 import { nav } from "./nav.ts";
 import { settings } from "./settings.ts";
 
-export const en = { ...common, ...settings, ...nav, ...chat, ...artifacts, ...graph };
+export const en = { ...common, ...settings, ...nav, ...chat, ...composer, ...artifacts, ...graph };
 
 export type TranslationKey = keyof typeof en;
 export type Dictionary = Record<TranslationKey, string>;
