@@ -50,6 +50,14 @@ describe("general.language", () => {
 		assert.deepEqual(sanitizeUserSettings({ general: { language: "klingon" } })?.general, {});
 	});
 
+	it("the sanitizer keeps the dictation override and its pick, dropping malformed values", () => {
+		assert.deepEqual(
+			sanitizeUserSettings({ general: { dictationOverride: true, dictationLanguage: "fr" } })?.general,
+			{ dictationOverride: true, dictationLanguage: "fr" },
+		);
+		assert.deepEqual(sanitizeUserSettings({ general: { dictationOverride: "yes", dictationLanguage: "klingon" } })?.general, {});
+	});
+
 	it("the general PUT accepts a supported language and rejects anything else", () => {
 		const es = parseGeneralSettingsBody({ autoUpdate: true, language: "es" });
 		assert.ok(es.ok);

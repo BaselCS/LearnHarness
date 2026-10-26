@@ -235,8 +235,42 @@ export interface GeneralSettings {
 	/** Auto-update the app (default ON). Mechanism ships in a later wave. */
 	autoUpdate?: boolean;
 	/** The app language (default "en"): the UI copy, the agents' system
-	 *  prompts and the dictation language all follow it (core/i18n.ts). */
+	 *  prompts and, unless overridden, the dictation language all follow
+	 *  it (core/i18n.ts). */
 	language?: AppLanguage;
+	/** Dictate in dictationLanguage instead of the app language (default OFF). */
+	dictationOverride?: boolean;
+	/** Deepgram's `language` param while dictationOverride is on. No
+	 *  factory default: absent until picked, and kept when the override
+	 *  goes off so turning it back on restores the pick. "multi" is
+	 *  nova-3's multilingual code-switching mode. */
+	dictationLanguage?: DictationLanguage;
+}
+
+/** General with every default resolved — dictationLanguage has none. */
+export type ResolvedGeneralSettings = Required<Omit<GeneralSettings, "dictationLanguage">> &
+	Pick<GeneralSettings, "dictationLanguage">;
+
+/** The dictation languages offered — nova-3's multilingual set (each also
+ *  streams monolingually), in picker order with their display labels. */
+export const DICTATION_LANGUAGES = [
+	{ id: "en", label: "English" },
+	{ id: "multi", label: "Multilingual (auto-detect)" },
+	{ id: "es", label: "Español" },
+	{ id: "fr", label: "Français" },
+	{ id: "de", label: "Deutsch" },
+	{ id: "pt", label: "Português" },
+	{ id: "it", label: "Italiano" },
+	{ id: "nl", label: "Nederlands" },
+	{ id: "ja", label: "日本語" },
+	{ id: "hi", label: "हिन्दी" },
+	{ id: "ru", label: "Русский" },
+] as const;
+
+export type DictationLanguage = (typeof DICTATION_LANGUAGES)[number]["id"];
+
+export function isDictationLanguage(value: unknown): value is DictationLanguage {
+	return DICTATION_LANGUAGES.some((lang) => lang.id === value);
 }
 
 /** Agent settings — everything about the non-conversation machinery. */
@@ -381,7 +415,7 @@ export interface UserSettings {
  *  prompts default off — hence their absence here. */
 export interface FactorySettings {
 	version: number;
-	general: Required<GeneralSettings>;
+	general: ResolvedGeneralSettings;
 	appearance: {
 		mode: "dark" | "light";
 		background: string | null;
@@ -400,7 +434,7 @@ export interface FactorySettings {
 
 export const FACTORY_SETTINGS: FactorySettings = {
 	version: CURRENT_SETTINGS_VERSION,
-	general: { autoUpdate: true, language: "en" },
+	general: { autoUpdate: true, language: "en", dictationOverride: false },
 	appearance: {
 		mode: "dark",
 		background: null, // the dark default (#141414) lives in the mode's derivation curve
@@ -446,6 +480,9 @@ function sanitizeGeneral(raw: Record<string, unknown>): GeneralSettings {
 	const autoUpdate = boolOrDrop(raw.autoUpdate);
 	if (autoUpdate !== undefined) out.autoUpdate = autoUpdate;
 	if (isAppLanguage(raw.language)) out.language = raw.language;
+	const dictationOverride = boolOrDrop(raw.dictationOverride);
+	if (dictationOverride !== undefined) out.dictationOverride = dictationOverride;
+	if (isDictationLanguage(raw.dictationLanguage)) out.dictationLanguage = raw.dictationLanguage;
 	return out;
 }
 

@@ -11,7 +11,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createWarmMinter, deepgramUrl } from "../components/dictation.tsx";
-import { dictationCodeFor } from "../src/core/i18n.ts";
+import { effectiveDictationLanguage } from "../src/core/i18n.ts";
+import { resolveSettings } from "../src/core/settings-resolution.ts";
 
 describe("warm-token cache (mitigation D, owner 2026-09-27)", () => {
 	it("caches: concurrent and repeat mints share ONE promise and mint once", async () => {
@@ -103,11 +104,28 @@ describe("warm-token cache (mitigation D, owner 2026-09-27)", () => {
 	});
 });
 
-describe("deepgramUrl (dictation follows the app language)", () => {
-	it("carries the app language's dictation code on the nova-3 streaming params", () => {
-		const url = new URL(deepgramUrl(dictationCodeFor("es")));
+describe("deepgramUrl (dictation language setting)", () => {
+	it("appends the chosen language to the nova-3 streaming params", () => {
+		const url = new URL(deepgramUrl("es"));
 		assert.equal(url.searchParams.get("model"), "nova-3");
 		assert.equal(url.searchParams.get("language"), "es");
-		assert.equal(new URL(deepgramUrl(dictationCodeFor("en"))).searchParams.get("language"), "en");
+		assert.equal(new URL(deepgramUrl("multi")).searchParams.get("language"), "multi");
+	});
+});
+
+describe("effectiveDictationLanguage (the app language unless overridden)", () => {
+	it("follows the app language while the override is off, even with a remembered pick", () => {
+		assert.equal(effectiveDictationLanguage({ language: "es", dictationOverride: false }), "es");
+		assert.equal(effectiveDictationLanguage({ language: "en", dictationOverride: false, dictationLanguage: "fr" }), "en");
+	});
+
+	it("uses the pick while the override is on, and the app language until something is picked", () => {
+		assert.equal(effectiveDictationLanguage({ language: "es", dictationOverride: true, dictationLanguage: "multi" }), "multi");
+		assert.equal(effectiveDictationLanguage({ language: "es", dictationOverride: true }), "es");
+	});
+
+	it("resolves from a settings record (factory: override off, follows the app language)", () => {
+		assert.equal(effectiveDictationLanguage(resolveSettings(null).general), "en");
+		assert.equal(effectiveDictationLanguage(resolveSettings({ version: 1, general: { language: "es" } }).general), "es");
 	});
 });

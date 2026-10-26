@@ -17,6 +17,12 @@ export const settings = {
 	"settings.general.autoUpdate.hint": "Automatic updates arrive in an upcoming release",
 	"settings.general.language": "Language",
 	"settings.general.language.aria": "language",
+	"settings.general.dictationOverride": "Use another language for dictation",
+	"settings.general.dictationOverride.aria": "use another language for dictation",
+	"settings.general.dictationLanguage": "Dictation language",
+	"settings.general.dictationLanguage.aria": "dictation language",
+	"settings.general.dictationLanguage.hint": "The language you speak when dictating — Multilingual detects it and handles mixed speech",
+	"settings.general.dictationLanguage.multi": "Multilingual (auto-detect)",
 
 	"settings.action.save": "Save",
 	"settings.action.cancel": "Cancel",

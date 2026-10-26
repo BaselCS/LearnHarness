@@ -13,6 +13,7 @@ import { I18nProvider } from "../components/i18n.tsx";
 import { AgentSection, sectionedSegments } from "../components/settings/agent-section.tsx";
 import { AppearanceSection, GraphSection } from "../components/settings/appearance-section.tsx";
 import { KeyboardSection } from "../components/settings/keyboard-section.tsx";
+import { GeneralSection } from "../components/settings/settings-dialog.tsx";
 import { KeysSection, keyStatusLine } from "../components/settings/keys-section.tsx";
 
 const agent = () => <AgentSection agent={undefined} models={undefined} graph={undefined} compaction={undefined} onSectionChange={() => {}} onModelsChange={() => {}} onCompactionChange={() => {}} />;
@@ -52,6 +53,13 @@ describe("settings sections under the Spanish provider", () => {
 		assert.ok(html.includes(">Reasignar<"));
 		assert.ok(html.includes("Restablecer todo"));
 		assert.ok(html.includes(">Buscar<"));
+	});
+
+	it("GeneralSection: the dictation override rows read Spanish", () => {
+		const html = es(<GeneralSection general={{ language: "es" }} onChange={() => {}} />);
+		assert.ok(html.includes("Usar otro idioma para el dictado"));
+		assert.ok(html.includes("Idioma del dictado"));
+		assert.ok(html.includes("Multilingüe (detección automática)"));
 	});
 
 	it("KeysSection: the SSR loading state reads Spanish", () => {

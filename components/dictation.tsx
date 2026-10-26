@@ -3,9 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2Icon, MicIcon } from "lucide-react";
 import { useSettingsDialog } from "@/components/settings/settings-dialog";
+import { useSettingsSaved } from "@/components/settings-signal";
 import { Hint } from "@/components/ui/hint";
 import { useLanguage, useT } from "@/components/i18n";
-import { dictationCodeFor, translate, type TranslationKey } from "@/src/core";
+import {
+	dictationCodeFor,
+	effectiveDictationLanguage,
+	resolveSettings,
+	translate,
+	type DictationLanguage,
+	type TranslationKey,
+	type UserSettings,
+} from "@/src/core";
 
 /**
  * Voice dictation — the cloud engine (STT wave 1, 2026-09-17).
@@ -87,7 +96,8 @@ import { dictationCodeFor, translate, type TranslationKey } from "@/src/core";
  * Deepgram streaming params (the owner's live-tuned dictate config): nova-3,
  * endpointing=300, no interims. Silence streams too (the worklet never
  * pauses), so the socket never idles — no KeepAlive needed. The language
- * is the app language's dictation code (core/i18n.ts).
+ * is the app language's dictation code unless settings override it
+ * (effectiveDictationLanguage, core/i18n.ts).
  */
 const DG_URL =
 	"wss://api.deepgram.com/v1/listen" +
@@ -99,8 +109,23 @@ const DG_URL =
 	"&punctuate=true" +
 	"&endpointing=300";
 
-export function deepgramUrl(language: string): string {
+export function deepgramUrl(language: DictationLanguage): string {
 	return `${DG_URL}&language=${language}`;
+}
+
+/** The resolved dictation language — module-level like the warm token, so
+ *  the click path never waits on a settings read. Re-read at page mount
+ *  and on every general-section save; a failed read keeps the last value.
+ *  null until the first read lands: the app language stands in. */
+let dictationLanguage: DictationLanguage | null = null;
+
+function refreshDictationLanguage(): void {
+	fetch("/api/settings")
+		.then((r) => r.json() as Promise<{ settings?: UserSettings | null }>)
+		.then((body) => {
+			dictationLanguage = effectiveDictationLanguage(resolveSettings(body.settings ?? null).general);
+		})
+		.catch(() => {});
 }
 
 /** Meter tuning — the owner's tested values, see the file header. */
@@ -386,7 +411,7 @@ export function useDictation({ append }: { append: (text: string) => void }): Di
 			// Minted JWTs authenticate via the "bearer" subprotocol — ["token",
 			// jwt] is rejected at the handshake (verified live; "token" is for
 			// raw API keys only, as in the owner's pi dictate extension).
-			const ws = new WebSocket(deepgramUrl(languageRef.current), ["bearer", token]);
+			const ws = new WebSocket(deepgramUrl(dictationLanguage ?? languageRef.current), ["bearer", token]);
 			wsRef.current = ws;
 
 			ws.addEventListener("open", () => {
@@ -604,7 +629,11 @@ export function useDictation({ append }: { append: (text: string) => void }): Di
 	// attached.
 	useEffect(() => {
 		warmTokens.refresh(); // pre-mint at mount (mitigation D) — silent if keyless
+		refreshDictationLanguage();
 	}, []);
+	useSettingsSaved((section) => {
+		if (section === "general") refreshDictationLanguage();
+	});
 	useEffect(() => {
 		window.addEventListener("lh:kbd-toggle-dictation", toggle);
 		return () => window.removeEventListener("lh:kbd-toggle-dictation", toggle);

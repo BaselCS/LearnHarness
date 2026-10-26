@@ -18,6 +18,12 @@ export const settings: Record<keyof typeof en, string> = {
 	"settings.general.autoUpdate.hint": "Las actualizaciones automáticas llegarán en una próxima versión",
 	"settings.general.language": "Idioma",
 	"settings.general.language.aria": "idioma",
+	"settings.general.dictationOverride": "Usar otro idioma para el dictado",
+	"settings.general.dictationOverride.aria": "usar otro idioma para el dictado",
+	"settings.general.dictationLanguage": "Idioma del dictado",
+	"settings.general.dictationLanguage.aria": "idioma del dictado",
+	"settings.general.dictationLanguage.hint": "El idioma en que hablas al dictar — Multilingüe lo detecta y admite habla mezclada",
+	"settings.general.dictationLanguage.multi": "Multilingüe (detección automática)",
 
 	"settings.action.save": "Guardar",
 	"settings.action.cancel": "Cancelar",

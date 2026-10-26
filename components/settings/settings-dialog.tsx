@@ -34,13 +34,17 @@ import { useBackdropDismiss } from "@/components/backdrop-dismiss";
 import {
 	APP_LANGUAGES,
 	CURRENT_SETTINGS_VERSION,
-	FACTORY_SETTINGS,
+	DICTATION_LANGUAGES,
+	effectiveDictationLanguage,
 	isAppLanguage,
+	isDictationLanguage,
+	resolveSettings,
 	translate,
 	type AgentSettings,
 	type AppearanceSettings,
 	type CompactionSettings,
 	type GraphSettings,
+	type GeneralSettings,
 	type UserSettings,
 } from "@/src/core";
 import { useAppearance } from "./appearance.tsx";
@@ -83,6 +87,7 @@ const DialogContext = createContext<{ open: (section?: string, row?: string) => 
 /** The auto-update row's hint (tooltip wave): honest user language — no
  *  stream vocabulary. Exported for the copy pin (tooltip-mechanism test). */
 export const AUTO_UPDATE_HINT = translate("en", "settings.general.autoUpdate.hint");
+export const DICTATION_LANGUAGE_HINT = translate("en", "settings.general.dictationLanguage.hint");
 
 export function SettingsDialogProvider({
 	children,
@@ -368,37 +373,7 @@ export function SettingsDialogBody({
 									title={t("settings.section.general")}
 									testid="section-general"
 								>
-									<SettingsRow
-										label={t("settings.general.autoUpdate")}
-										hint={t("settings.general.autoUpdate.hint")}
-										testid="row-auto-update"
-									>
-										<Toggle
-											checked={record.general?.autoUpdate ?? true}
-											label={t("settings.general.autoUpdate.aria")}
-											testid="toggle-auto-update"
-											onChange={(on) =>
-												void write("general", { ...record.general, autoUpdate: on })
-											}
-										/>
-									</SettingsRow>
-									<SettingsRow label={t("settings.general.language")} testid="row-language">
-										<ThinSelect
-											value={record.general?.language ?? FACTORY_SETTINGS.general.language}
-											ariaLabel={t("settings.general.language.aria")}
-											testid="select-language"
-											onChange={(next) => {
-												if (isAppLanguage(next))
-													void write("general", { ...record.general, language: next });
-											}}
-										>
-											{APP_LANGUAGES.map((lang) => (
-												<option key={lang.id} value={lang.id}>
-													{lang.label}
-												</option>
-											))}
-										</ThinSelect>
-									</SettingsRow>
+									<GeneralSection general={record.general} onChange={(next) => void write("general", next)} />
 								</SettingsSection>
 							)}
 							{active === "keys" && (
@@ -468,5 +443,88 @@ export function SettingsDialogBody({
 				</div>
 			</div>
 		</div>
+	);
+}
+
+/** Settings → General. Every write sends the whole section (the PUT
+ *  replaces it), so each control spreads the current record. */
+export function GeneralSection({
+	general: record,
+	onChange,
+}: {
+	general: GeneralSettings | undefined;
+	onChange: (next: GeneralSettings) => void;
+}) {
+	const t = useT();
+	const general = resolveSettings({ version: CURRENT_SETTINGS_VERSION, ...(record ? { general: record } : {}) }).general;
+	/** What the dictation picker shows: the pick while overriding, else the app language's code. */
+	const dictationLanguage = effectiveDictationLanguage(general);
+	return (
+		<>
+			<SettingsRow
+				label={t("settings.general.autoUpdate")}
+				hint={t("settings.general.autoUpdate.hint")}
+				testid="row-auto-update"
+			>
+				<Toggle
+					checked={general.autoUpdate}
+					label={t("settings.general.autoUpdate.aria")}
+					testid="toggle-auto-update"
+					onChange={(on) => onChange({ ...record, autoUpdate: on })}
+				/>
+			</SettingsRow>
+			<SettingsRow label={t("settings.general.language")} testid="row-language">
+				<ThinSelect
+					value={general.language}
+					ariaLabel={t("settings.general.language.aria")}
+					testid="select-language"
+					onChange={(next) => {
+						if (isAppLanguage(next)) onChange({ ...record, language: next });
+					}}
+				>
+					{APP_LANGUAGES.map((lang) => (
+						<option key={lang.id} value={lang.id}>
+							{lang.label}
+						</option>
+					))}
+				</ThinSelect>
+			</SettingsRow>
+			<SettingsRow label={t("settings.general.dictationOverride")} testid="row-dictation-override">
+				<Toggle
+					checked={general.dictationOverride}
+					label={t("settings.general.dictationOverride.aria")}
+					testid="toggle-dictation-override"
+					onChange={(on) =>
+						onChange({
+							...record,
+							dictationOverride: on,
+							dictationLanguage: general.dictationLanguage ?? dictationLanguage,
+						})
+					}
+				/>
+			</SettingsRow>
+			<SettingsRow
+				label={t("settings.general.dictationLanguage")}
+				hint={t("settings.general.dictationLanguage.hint")}
+				testid="row-dictation-language"
+				dimmed={!general.dictationOverride}
+			>
+				<ThinSelect
+					value={dictationLanguage}
+					ariaLabel={t("settings.general.dictationLanguage.aria")}
+					testid="select-dictation-language"
+					disabled={!general.dictationOverride}
+					onChange={(next) => {
+						if (isDictationLanguage(next)) onChange({ ...record, dictationLanguage: next });
+					}}
+				>
+					{DICTATION_LANGUAGES.map((lang) => (
+						<option key={lang.id} value={lang.id}>
+							{lang.id === "multi" ? t("settings.general.dictationLanguage.multi") : lang.label}
+						</option>
+					))}
+				</ThinSelect>
+			</SettingsRow>
+		</>
 	);
 }
