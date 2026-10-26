@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2Icon, MicIcon } from "lucide-react";
 import { useSettingsDialog } from "@/components/settings/settings-dialog";
 import { Hint } from "@/components/ui/hint";
+import { useLanguage } from "@/components/i18n";
+import { dictationCodeFor } from "@/src/core";
 
 /**
  * Voice dictation — the cloud engine (STT wave 1, 2026-09-17).
@@ -84,7 +86,8 @@ import { Hint } from "@/components/ui/hint";
 /*
  * Deepgram streaming params (the owner's live-tuned dictate config): nova-3,
  * endpointing=300, no interims. Silence streams too (the worklet never
- * pauses), so the socket never idles — no KeepAlive needed.
+ * pauses), so the socket never idles — no KeepAlive needed. The language
+ * is the app language's dictation code (core/i18n.ts).
  */
 const DG_URL =
 	"wss://api.deepgram.com/v1/listen" +
@@ -95,6 +98,10 @@ const DG_URL =
 	"&smart_format=true" +
 	"&punctuate=true" +
 	"&endpointing=300";
+
+export function deepgramUrl(language: string): string {
+	return `${DG_URL}&language=${language}`;
+}
 
 /** Meter tuning — the owner's tested values, see the file header. */
 const METER_FLOOR_DB = -50;
@@ -293,6 +300,9 @@ export function useDictation({ append }: { append: (text: string) => void }): Di
 	 *  retarget (composer↔question) is honored on the very next final. */
 	const appendRef = useRef(append);
 	appendRef.current = append;
+	const dictationCode = dictationCodeFor(useLanguage());
+	const languageRef = useRef(dictationCode);
+	languageRef.current = dictationCode;
 
 	// Live machinery (non-render values). The MediaStream tracks stop and
 	// the per-run nodes disconnect on teardown; the socket is recreated per
@@ -366,7 +376,7 @@ export function useDictation({ append }: { append: (text: string) => void }): Di
 			// Minted JWTs authenticate via the "bearer" subprotocol — ["token",
 			// jwt] is rejected at the handshake (verified live; "token" is for
 			// raw API keys only, as in the owner's pi dictate extension).
-			const ws = new WebSocket(DG_URL, ["bearer", token]);
+			const ws = new WebSocket(deepgramUrl(languageRef.current), ["bearer", token]);
 			wsRef.current = ws;
 
 			ws.addEventListener("open", () => {
