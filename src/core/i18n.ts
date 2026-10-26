@@ -9,6 +9,11 @@
  * Browser-safe: pure data + logic, no node imports.
  */
 
+import { en, type Dictionary, type TranslationKey } from "./i18n/en/index.ts";
+import { es } from "./i18n/es/index.ts";
+
+export type { Dictionary, TranslationKey };
+
 export const APP_LANGUAGES = [
 	{ id: "en", label: "English", dictation: "en" },
 	{ id: "es", label: "Español", dictation: "es" },
@@ -27,6 +32,17 @@ export type Localized<T> = { en: T } & Partial<Record<AppLanguage, T>>;
 
 export function pickLocalized<T>(map: Localized<T>, language: AppLanguage = DEFAULT_LANGUAGE): T {
 	return map[language] ?? map.en;
+}
+
+/** Every registered language's UI dictionary (adding a language to
+ *  APP_LANGUAGES makes this fail typecheck until its dictionary exists). */
+export const DICTIONARIES: Record<AppLanguage, Dictionary> = { en, es };
+
+/** The UI copy for `key` in `language`, with `{name}` placeholders filled from `vars`. */
+export function translate(language: AppLanguage, key: TranslationKey, vars?: Record<string, string | number>): string {
+	const text = DICTIONARIES[language]?.[key] ?? en[key];
+	if (!vars) return text;
+	return text.replace(/\{(\w+)\}/g, (match, name: string) => (name in vars ? String(vars[name]) : match));
 }
 
 /** The Deepgram `language` code dictation uses for an app language. */

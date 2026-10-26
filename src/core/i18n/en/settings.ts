@@ -1,0 +1,20 @@
+/** The settings dialog. */
+export const settings = {
+	"settings.title": "Settings",
+	"settings.close": "Close settings",
+	"settings.nav": "Settings sections",
+	"settings.loading": "Loading settings…",
+	"settings.loadFailed": "Settings could not be loaded — refresh to retry.",
+	"settings.section.keys": "Providers",
+	"settings.section.agent": "Agent",
+	"settings.section.appearance": "Appearance",
+	"settings.section.graph": "Graph",
+	"settings.section.keyboard": "Keyboard",
+	"settings.section.keyboard.hint": "Stored on this device",
+	"settings.section.general": "General",
+	"settings.general.autoUpdate": "Auto-update",
+	"settings.general.autoUpdate.aria": "auto update",
+	"settings.general.autoUpdate.hint": "Automatic updates arrive in an upcoming release",
+	"settings.general.language": "Language",
+	"settings.general.language.aria": "language",
+} as const;
