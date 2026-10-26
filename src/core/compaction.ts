@@ -38,7 +38,7 @@ import { derivePlanStatusesLh, derivedNodeStatus } from "./contracts/plan.ts";
 import { COMPACTED_HISTORY_HEADER } from "./contracts/chat.ts";
 import type { LhMessage, LhMarkerMessage } from "./native-messages.ts";
 import { newMessageId } from "./native-messages.ts";
-import type { AppLanguage } from "./i18n.ts";
+import { pickLocalized, type AppLanguage, type Localized } from "./i18n.ts";
 import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import type { AssistantMessage, ToolResultMessage, SystemMessage } from "@earendil-works/pi-ai";
 
@@ -381,9 +381,18 @@ export function buildCompactionPrompt(input: {
 	/** The app language the instructions are in (absent = English). */
 	language?: AppLanguage;
 }): string {
-	if (input.language === "es") return buildSpanishCompactionPrompt(input.spanText, input.planTreeText);
-	const planSection =
-		input.planTreeText ?? "No plan tree exists in this session (nothing was persisted).";
+	return pickLocalized(COMPACTION_PROMPTS, input.language)(input.spanText, input.planTreeText);
+}
+
+type CompactionPromptTemplate = (spanText: string, planTreeText: string | null) => string;
+
+const COMPACTION_PROMPTS: Localized<CompactionPromptTemplate> = {
+	en: englishCompactionPrompt,
+	es: spanishCompactionPrompt,
+};
+
+function englishCompactionPrompt(spanText: string, planTreeText: string | null): string {
+	const planSection = planTreeText ?? "No plan tree exists in this session (nothing was persisted).";
 	return `You are compacting the earlier part of a tutoring session — writing the summary your future self will read INSTEAD of that transcript. Everything before the cut is replaced by what you write; everything after stays verbatim. The learner's transcript below labels the learner as [LEARNER], the tutoring agent as [TUTOR], tool traffic as [RESULT …]/[SYSTEM NOTE].
 
 Write the summary with EXACTLY these sections, in this order:
@@ -406,10 +415,10 @@ Rules: no praise, no filler, no speculation beyond the transcript. Every claim a
 
 TRANSCRIPT TO SUMMARIZE:
 
-${input.spanText}`;
+${spanText}`;
 }
 
-function buildSpanishCompactionPrompt(spanText: string, planTreeText: string | null): string {
+function spanishCompactionPrompt(spanText: string, planTreeText: string | null): string {
 	const planSection = planTreeText ?? "No existe un árbol de plan en esta sesión (no se guardó nada).";
 	return `Estás compactando la primera parte de una sesión de tutoría — escribiendo el resumen que tu yo futuro leerá EN LUGAR de esa transcripción. Todo lo anterior al corte se reemplaza por lo que escribas; todo lo posterior se conserva palabra por palabra. La transcripción de abajo etiqueta al aprendiz como [LEARNER], al agente tutor como [TUTOR] y el tráfico de herramientas como [RESULT …]/[SYSTEM NOTE].
 

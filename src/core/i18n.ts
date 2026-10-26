@@ -1,9 +1,12 @@
 /**
  * THE APP LANGUAGE REGISTRY — the one list of languages the app speaks.
- * Adding a language: one entry here, one UI dictionary (i18n/<id>.ts,
- * typed as Dictionary so missing keys fail typecheck), one mirrored tree
- * of translated prompt segments (src/agent/prompts/locales/<id>/) and an
- * <id> entry in each inline worker prompt map. Anything not yet translated
+ * Adding a language: one entry here, one UI dictionary (i18n/<id>/, one
+ * file per surface, typed as Dictionary so missing keys fail typecheck),
+ * one mirrored tree of translated prompt segments
+ * (src/agent/prompts/locales/<id>/), one worker prompt file
+ * (src/agent/subagents/locales/<id>.ts, registered in worker-prompts.ts)
+ * and an <id> entry in each
+ * Localized<T> map (compaction prompts). Anything not yet translated
  * falls back to English, the source of truth.
  *
  * Browser-safe: pure data + logic, no node imports.
@@ -47,5 +50,5 @@ export function translate(language: AppLanguage, key: TranslationKey, vars?: Rec
 
 /** The Deepgram `language` code dictation uses for an app language. */
 export function dictationCodeFor(language: AppLanguage): string {
-	return APP_LANGUAGES.find((lang) => lang.id === language)?.dictation ?? "en";
+	return APP_LANGUAGES.find((lang) => lang.id === language)?.dictation ?? DEFAULT_LANGUAGE;
 }
