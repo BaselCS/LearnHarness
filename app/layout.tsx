@@ -8,7 +8,7 @@ import { ServerEventsProvider } from "@/components/server-events";
 import { AppearanceProvider } from "@/components/settings/appearance";
 import UpdateBanner from "@/components/update-banner";
 import { I18nProvider } from "@/components/i18n";
-import { resolveSettings } from "@/src/core";
+import { resolveSettings, translate } from "@/src/core";
 import { readSettingsRecord } from "@/src/server";
 
 // Chrome = JetBrains Mono, teaching prose = Source Sans 3, titles = CMU
@@ -16,10 +16,13 @@ import { readSettingsRecord } from "@/src/server";
 const ui = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
 const prose = Source_Sans_3({ subsets: ["latin"], variable: "--font-sans3" });
 
-export const metadata: Metadata = {
-	title: "Learning Harness",
-	description: "A teacher agent with a memory — sessions, quizzes, and a knowledge graph of what you know.",
-};
+export function generateMetadata(): Metadata {
+	const language = resolveSettings(readSettingsRecord()).general.language;
+	return {
+		title: "Learning Harness",
+		description: translate(language, "nav.meta.description"),
+	};
+}
 
 // Dynamic: the app language is read from the settings record per request.
 export const dynamic = "force-dynamic";
