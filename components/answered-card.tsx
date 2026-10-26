@@ -6,6 +6,7 @@ import { GlyphMark } from "@/components/ui/glyph-mark";
 import { ThinkingBlock } from "@/components/thinking-block";
 import { cn } from "@/lib/utils";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { useT } from "@/components/i18n";
 import type { QuestionAnswerData } from "@/src/core";
 import { parseAskInput, parseQuizInput } from "@/src/core";
 
@@ -21,10 +22,11 @@ import { parseAskInput, parseQuizInput } from "@/src/core";
  */
 export function AnsweredCard({ answer, input }: { answer: QuestionAnswerData; input?: unknown }) {
 	const [whyOpen, setWhyOpen] = useState(false); // the tucked explanation (predictions, owner 2026-10-03)
+	const t = useT();
 	if (answer.dismissed) {
 		return (
 			<div className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
-				<span className="font-medium">{answer.questionText}</span> — skipped
+				<span className="font-medium">{answer.questionText}</span>{` — ${t("composer.answered.skipped")}`}
 			</div>
 		);
 	}
@@ -51,7 +53,7 @@ export function AnsweredCard({ answer, input }: { answer: QuestionAnswerData; in
 		    ThinkingBlock, instead of an inset inside the answer. Same muted
 		    rail as before; the label is now plain "Your thinking". */}
 		{answer.readingThinking && (
-			<ThinkingBlock testId="reading-thinking-block" label="YOUR THINKING" text={answer.readingThinking} defaultOpen />
+			<ThinkingBlock testId="reading-thinking-block" label={t("composer.dock.yourThinking")} text={answer.readingThinking} defaultOpen />
 		)}
 		{/* [&>*:last-child]:mb-0 (owner round, 2026-10-07): on ask cards the
 		    thinking row is the last child — its my-3 stacked with the card's
@@ -66,23 +68,23 @@ export function AnsweredCard({ answer, input }: { answer: QuestionAnswerData; in
 			    cards label Probe/Recall — the phase boundary visible in the
 			    transcript. No `tool` on old records: kind labels as before. */}
 				{answer.tool === "probe"
-					? "Probe"
+					? t("composer.kind.probe")
 					: answer.tool === "recall"
-						? "Recall"
+						? t("composer.kind.recall")
 						: isQuiz
 								? answer.questionType === "predict"
-									? "Prediction"
-									: "Check"
+									? t("composer.kind.prediction")
+									: t("composer.kind.check")
 									: isExplain
-										? "Explain"
-											: "Question"}
+										? t("composer.kind.explain")
+											: t("composer.kind.question")}
 				{isQuiz &&
 					(answer.dontKnow ? (
-						<span className="rounded bg-muted px-1.5 py-0.5">didn't know</span>
+						<span className="rounded bg-muted px-1.5 py-0.5">{t("composer.answered.didntKnow")}</span>
 					) : answer.correct ? (
-						<span className="rounded bg-green-500/15 px-1.5 py-0.5 text-green-500">correct</span>
+						<span className="rounded bg-green-500/15 px-1.5 py-0.5 text-green-500">{t("composer.answered.correct")}</span>
 					) : (
-						<span className="rounded bg-red-500/15 px-1.5 py-0.5 text-red-500">incorrect</span>
+						<span className="rounded bg-red-500/15 px-1.5 py-0.5 text-red-500">{t("composer.answered.incorrect")}</span>
 					))}
 			</div>
 			<div className="mb-3 font-medium">
@@ -176,7 +178,7 @@ export function AnsweredCard({ answer, input }: { answer: QuestionAnswerData; in
 				</div>
 			)}
 			{answer.dontKnow && isQuiz && (
-				<div className="mt-2 text-sm text-muted-foreground">Answered “I don't know”.</div>
+				<div className="mt-2 text-sm text-muted-foreground">{t("composer.answered.dontKnow")}</div>
 			)}
 
 			{(answer.thinking ?? answer.note) && (
@@ -186,7 +188,7 @@ export function AnsweredCard({ answer, input }: { answer: QuestionAnswerData; in
 				    the accent lift read too light); rail only, heights identical. */
 				<ThinkingBlock
 					testId="your-thinking"
-					label="YOUR THINKING"
+					label={t("composer.dock.yourThinking")}
 					text={answer.thinking ?? answer.note ?? ""}
 					inCard
 				/>
@@ -206,11 +208,11 @@ export function AnsweredCard({ answer, input }: { answer: QuestionAnswerData; in
 						onClick={() => setWhyOpen((v) => !v)}
 						className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
 					>
-						{whyOpen ? "Hide why" : "Why"}
+						{whyOpen ? t("composer.answered.hideWhy") : t("composer.answered.why")}
 					</button>
 					{whyOpen && (
 						<div className="mt-1.5 rounded-lg bg-muted py-2 text-sm text-foreground/50">
-							<span className="font-medium text-muted-foreground">Why: </span>
+							<span className="font-medium text-muted-foreground">{`${t("composer.answered.whyLabel")} `}</span>
 							{/* The markdown wrapper must go truly inline — a block <p> after the
 							   "Why:" label created the oversized leading gap (owner's fix list). */}
 							<MessageResponse className="inline [&_p]:inline [&_p]:m-0">{answer.explanation}</MessageResponse>
@@ -224,7 +226,7 @@ export function AnsweredCard({ answer, input }: { answer: QuestionAnswerData; in
 			    the model's next reply IS the grading. */}
 			{isExplain && answer.committed && (
 				<div className="mt-3 rounded-lg bg-muted py-2 text-sm text-muted-foreground">
-					<span className="font-medium text-foreground">The answer: </span>
+					<span className="font-medium text-foreground">{`${t("composer.answered.theAnswer")} `}</span>
 					<MessageResponse className="inline [&_p]:inline [&_p]:m-0">{answer.committed}</MessageResponse>
 				</div>
 			)}
