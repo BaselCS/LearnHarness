@@ -376,6 +376,7 @@ export function SettingsDialogBody({
 										<Toggle
 											checked={record.general?.autoUpdate ?? true}
 											label={t("settings.general.autoUpdate.aria")}
+											testid="toggle-auto-update"
 											onChange={(on) =>
 												void write("general", { ...record.general, autoUpdate: on })
 											}
