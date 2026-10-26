@@ -24,6 +24,9 @@ import {
 	newThinkingMessage,
 	newUserMessage,
 	projectView,
+	translate,
+	DEFAULT_LANGUAGE,
+	type AppLanguage,
 	type ChatInput,
 	type LhMarkerMessage,
 	type LhMessage,
@@ -201,10 +204,14 @@ export interface SessionModelOptions extends SessionModelDeps {
 	/** The reattach settled terminal (turn-settled): no turn running, the
 	 *  record is current — the caller refetches it. */
 	onReattachSettled?: () => void;
+	/** The UI language of the client-made error copy; server text stays raw. */
+	language?: AppLanguage;
 }
 
 export class SessionModel {
 	readonly chatId: string;
+	/** The UI language of the client-made error copy (the adapter keeps it current). */
+	language: AppLanguage;
 	/** Injectable fetch (tests); defaults to the global. */
 	fetch: typeof globalThis.fetch;
 	/** Steers sent but not yet drained (the queued indicator's truth). */
@@ -249,6 +256,7 @@ export class SessionModel {
 		this.waitMaxMs = opts.waitMaxMs ?? TURN_WAIT_MAX_MS;
 		this.onChange = opts.onChange;
 		this.onReattachSettled = opts.onReattachSettled;
+		this.language = opts.language ?? DEFAULT_LANGUAGE;
 	}
 
 	/** Injectable settle hook (the adapter wires its ref). */
@@ -269,7 +277,7 @@ export class SessionModel {
 		const providerError =
 			latest?.role === "assistant" && latest.stopReason === "error" &&
 			!this.incompleteUsageIds.has(latest.id) && (!live || latest.id === this.liveFailureId)
-				? { message: latest.errorMessage ?? "An error occurred." }
+				? { message: latest.errorMessage ?? translate(this.language, "chat.session.genericError") }
 				: null;
 		return {
 			messages: projectView(messages, live),
@@ -341,7 +349,7 @@ export class SessionModel {
 		if (event.type === "error") {
 			// Loop-level failure (agent.continue threw outside the stream) —
 			// raw text (owner ruling, Wave D): the banner shows exactly this.
-			this.setError(String(event.errorText ?? "An error occurred."));
+			this.setError(String(event.errorText ?? translate(this.language, "chat.session.genericError")));
 			return false;
 		}
 		const agent = event as unknown as AgentEvent;
@@ -446,7 +454,7 @@ export class SessionModel {
 	/** Consume one SSE body to its [DONE] terminal. The turn-settled
 	 *  terminal (stream-route only) fires the settle hook and ends. */
 	async consumeStream(res: Response, controller = this.consumeAbort): Promise<void> {
-		if (!res.body) throw new Error("The turn stream body is empty.");
+		if (!res.body) throw new Error(translate(this.language, "chat.session.emptyStream"));
 		const reader = res.body.getReader();
 		let sawEvent = false;
 		try {
@@ -547,7 +555,7 @@ export class SessionModel {
 				signal: controller.signal,
 			});
 			if (this.consumeAbort !== controller) return;
-			if (!res.ok) throw new Error((await res.text()) || "Failed to attach to the running turn.");
+			if (!res.ok) throw new Error((await res.text()) || translate(this.language, "chat.session.attachFailed"));
 			await this.consumeStream(res, controller);
 		} catch (err) {
 			if (this.consumeAbort !== controller || (err as Error).name === "AbortError") return; // a newer consume won
@@ -605,7 +613,7 @@ export class SessionModel {
 			// connection is Diet A's whole job.
 			const res = await this.postInputEvent(input);
 			if (res.status === 409) {
-				this.setError("A turn is already running — try again in a moment.");
+				this.setError(translate(this.language, "chat.session.turnRunning"));
 				this.setStatus("error");
 				return;
 			}
@@ -613,7 +621,7 @@ export class SessionModel {
 				// Refusal envelopes (503 BYOK/key gates) and 400s: the RAW body
 				// text rides the error message — the banner shows it, and the
 				// page's refusal flow JSON-parses the envelope out of it.
-				throw new Error((await res.text()) || `The send failed (${res.status}).`);
+				throw new Error((await res.text()) || translate(this.language, "chat.session.sendFailed", { status: res.status }));
 			}
 			// CONNECTION DIET B (owner, 2026-10-10 — parallel-session freeze
 			// postmortem): the POST acknowledges and closes; there is no stream
@@ -670,7 +678,7 @@ export class SessionModel {
 				return;
 			}
 			dropSteer();
-			this.setError((await res.text()) || `The steer failed (${res.status}).`);
+			this.setError((await res.text()) || translate(this.language, "chat.session.steerFailed", { status: res.status }));
 		} catch (err) {
 			dropSteer();
 			this.setError((err as Error).message);
@@ -702,7 +710,7 @@ export class SessionModel {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ input: { type: "dismiss", toolCallId, answer } }),
 			});
-			if (!res.ok) throw new Error(`The dismissal failed (${res.status}).`);
+			if (!res.ok) throw new Error(translate(this.language, "chat.session.dismissFailed", { status: res.status }));
 		} catch (err) {
 			this.setError((err as Error).message);
 		}
@@ -723,7 +731,7 @@ export class SessionModel {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ input: { type: "dismiss-problem", problemCallId } }),
 			});
-			if (!res.ok) throw new Error(`The dismissal failed (${res.status}).`);
+			if (!res.ok) throw new Error(translate(this.language, "chat.session.dismissFailed", { status: res.status }));
 		} catch (err) {
 			this.setError((err as Error).message);
 		}
