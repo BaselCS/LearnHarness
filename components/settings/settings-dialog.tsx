@@ -32,7 +32,10 @@ import {
 import { createPortal } from "react-dom";
 import { useBackdropDismiss } from "@/components/backdrop-dismiss";
 import {
+	APP_LANGUAGES,
 	CURRENT_SETTINGS_VERSION,
+	FACTORY_SETTINGS,
+	isAppLanguage,
 	type AgentSettings,
 	type AppearanceSettings,
 	type CompactionSettings,
@@ -40,7 +43,7 @@ import {
 	type UserSettings,
 } from "@/src/core";
 import { useAppearance } from "./appearance.tsx";
-import { SettingsSection, SettingsRow, Toggle } from "./controls.tsx";
+import { SettingsSection, SettingsRow, ThinSelect, Toggle } from "./controls.tsx";
 import { AgentSection } from "./agent-section.tsx";
 import type { ModelsSettings } from "@/src/core";
 import { MENU_CLOSE_EVENT, MENU_OPEN_EVENT } from "@/components/menu-shell";
@@ -371,9 +374,26 @@ export function SettingsDialogBody({
 											checked={record.general?.autoUpdate ?? true}
 											label="auto update"
 											onChange={(on) =>
-												void write("general", { autoUpdate: on })
+												void write("general", { ...record.general, autoUpdate: on })
 											}
 										/>
+									</SettingsRow>
+									<SettingsRow label="Language" testid="row-language">
+										<ThinSelect
+											value={record.general?.language ?? FACTORY_SETTINGS.general.language}
+											ariaLabel="language"
+											testid="select-language"
+											onChange={(next) => {
+												if (isAppLanguage(next))
+													void write("general", { ...record.general, language: next });
+											}}
+										>
+											{APP_LANGUAGES.map((lang) => (
+												<option key={lang.id} value={lang.id}>
+													{lang.label}
+												</option>
+											))}
+										</ThinSelect>
 									</SettingsRow>
 								</SettingsSection>
 							)}
