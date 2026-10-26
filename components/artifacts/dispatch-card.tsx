@@ -16,7 +16,7 @@ import { useT } from "@/components/i18n";
  *
  *   job unknown → "dispatched" pulse (the jobs feed hasn't seen it yet)
  *   running     → live activity card (activity line + elapsed)
- *   done/error  → quiet one-liner ("delivered" / "failed") — the artifact
+ *   done/error  → quiet one-liner ("finished" / "failed") — the artifact
  *                 itself arrives in the steer message right below, so the
  *                 box must not duplicate it.
  */

@@ -50,6 +50,7 @@ import {
 import { useAppearance } from "./appearance.tsx";
 import { useT } from "@/components/i18n";
 import { SettingsSection, SettingsRow, ThinSelect, Toggle } from "./controls.tsx";
+import { UpdateSettings } from "./update-settings.tsx";
 import { AgentSection } from "./agent-section.tsx";
 import type { ModelsSettings } from "@/src/core";
 import { MENU_CLOSE_EVENT, MENU_OPEN_EVENT } from "@/components/menu-shell";
@@ -84,9 +85,6 @@ const DialogContext = createContext<{ open: (section?: string, row?: string) => 
 /** AppShell-level mount: the sidebar row and the mod+, chord call this.
  *  `open(section)` lands the dialog on a specific section (the first-run
  *  setup flow deep-links to Keys when no provider key exists yet). */
-/** The auto-update row's hint (tooltip wave): honest user language — no
- *  stream vocabulary. Exported for the copy pin (tooltip-mechanism test). */
-export const AUTO_UPDATE_HINT = translate("en", "settings.general.autoUpdate.hint");
 export const DICTATION_LANGUAGE_HINT = translate("en", "settings.general.dictationLanguage.hint");
 
 export function SettingsDialogProvider({
@@ -102,6 +100,7 @@ export function SettingsDialogProvider({
 		setLandOnRow(row ?? null);
 		setShow(true);
 	}, []);
+	useEffect(() => window.lh?.onOpenSettings?.((section) => open(section)), [open]);
 	return (
 		<ChatGPTUIProvider><NativeSubscriptionUIProvider><DialogContext.Provider value={{ open }}>
 			{children}
@@ -373,6 +372,12 @@ export function SettingsDialogBody({
 									title={t("settings.section.general")}
 									testid="section-general"
 								>
+									<UpdateSettings
+										autoUpdate={record.general?.autoUpdate ?? true}
+										onAutoUpdateChange={(on) =>
+											void write("general", { ...record.general, autoUpdate: on })
+										}
+									/>
 									<GeneralSection general={record.general} onChange={(next) => void write("general", next)} />
 								</SettingsSection>
 							)}
@@ -461,18 +466,6 @@ export function GeneralSection({
 	const dictationLanguage = effectiveDictationLanguage(general);
 	return (
 		<>
-			<SettingsRow
-				label={t("settings.general.autoUpdate")}
-				hint={t("settings.general.autoUpdate.hint")}
-				testid="row-auto-update"
-			>
-				<Toggle
-					checked={general.autoUpdate}
-					label={t("settings.general.autoUpdate.aria")}
-					testid="toggle-auto-update"
-					onChange={(on) => onChange({ ...record, autoUpdate: on })}
-				/>
-			</SettingsRow>
 			<SettingsRow label={t("settings.general.language")} testid="row-language">
 				<ThinSelect
 					value={general.language}

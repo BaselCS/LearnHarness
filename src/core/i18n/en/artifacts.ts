@@ -26,7 +26,7 @@ export const artifacts = {
 	"artifacts.dispatch.kind.demo": "Demo agent",
 	"artifacts.dispatch.kind.visual": "Figure agent",
 	"artifacts.dispatch.kind.pdf": "PDF reader",
-	"artifacts.dispatch.delivered": "delivered",
+	"artifacts.dispatch.delivered": "finished",
 	"artifacts.dispatch.running": "{label} running",
 	"artifacts.dispatch.pending": "Dispatched…",
 	"artifacts.refusal.needsModelSetup": "needs model setup",

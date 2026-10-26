@@ -27,7 +27,7 @@ export const artifacts: Record<keyof typeof en, string> = {
 	"artifacts.dispatch.kind.demo": "Agente de demos",
 	"artifacts.dispatch.kind.visual": "Agente de figuras",
 	"artifacts.dispatch.kind.pdf": "Lector de PDF",
-	"artifacts.dispatch.delivered": "entregado",
+	"artifacts.dispatch.delivered": "terminado",
 	"artifacts.dispatch.running": "{label} en curso",
 	"artifacts.dispatch.pending": "Enviado…",
 	"artifacts.refusal.needsModelSetup": "falta configurar los modelos",

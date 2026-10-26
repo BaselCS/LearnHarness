@@ -7,11 +7,16 @@ import { notifySettingsSaved } from "@/components/settings-signal";
 import { ConnectionDialog, ConnectionFooter, ConnectionRow } from "./connection-controls";
 import { ChatGPTConnection } from "./chatgpt-connection";
 import { Toggle } from "./controls";
+import { useNativeSubscriptionBridge } from "./subscription-client";
 
 export const COPILOT_POLICY_NOTICE = translate("en", "settings.subscription.copilotNotice");
 export const SUBSCRIPTION_BACKGROUND_HINT = translate("en", "settings.subscription.backgroundHint");
-export function subscriptionNotice(label: string, language: AppLanguage = DEFAULT_LANGUAGE): string { return translate(language, "settings.subscription.notice", { label }); }
-export function subscriptionDisconnectCopy(label: string, language: AppLanguage = DEFAULT_LANGUAGE): string { return translate(language, "settings.subscription.disconnectCopy", { label }); }
+export function subscriptionNotice(label: string, web = false, language: AppLanguage = DEFAULT_LANGUAGE): string {
+	return translate(language, web ? "settings.subscription.notice.web" : "settings.subscription.notice", { label });
+}
+export function subscriptionDisconnectCopy(label: string, web = false, language: AppLanguage = DEFAULT_LANGUAGE): string {
+	return translate(language, web ? "settings.subscription.disconnectCopy.web" : "settings.subscription.disconnectCopy", { label });
+}
 export function emptySubscriptionStatus(providerId: NativeSubscriptionProviderId): NativeSubscriptionStatus { return { providerId, available: false, connected: false, pending: false, allowBackgroundUse: true, connectionId: null, epoch: 0, authorityRevision: 0, revision: 0 }; }
 const Context = createContext({ statuses: [] as NativeSubscriptionStatus[], busy: false, open: (_providerId: NativeSubscriptionProviderId) => {} });
 const CONTROL_ERROR = translate("en", "settings.subscription.controlError");
@@ -28,6 +33,8 @@ const LOCAL_MESSAGES = new Map<string, TranslationKey>([
 export function NativeSubscriptionUIProvider({ children }: { children: React.ReactNode }) {
 	const t = useT();
 	const language = useLanguage();
+	const bridge = useNativeSubscriptionBridge();
+	const web = typeof window !== "undefined" && bridge !== window.lh?.subscriptions;
 	const [statuses, setStatuses] = useState<NativeSubscriptionStatus[]>([]);
 	const [dialog, setDialog] = useState<NativeSubscriptionProviderId | null>(null);
 	const [view, setView] = useState<"notice" | "connection" | "manage">("notice");
@@ -42,7 +49,7 @@ export function NativeSubscriptionUIProvider({ children }: { children: React.Rea
 	async function refresh() {
 		const request = ++sequence.current;
 		try {
-			const values = await window.lh?.subscriptions?.status();
+			const values = await bridge?.status();
 			if (!mounted.current || request !== sequence.current || !Array.isArray(values)) return;
 			const accepted = NATIVE_SUBSCRIPTIONS.map(({ providerId }) => {
 				const next = values.find((s) => s.providerId === providerId), old = statusesRef.current.find((s) => s.providerId === providerId);
@@ -53,10 +60,10 @@ export function NativeSubscriptionUIProvider({ children }: { children: React.Rea
 	}
 	useEffect(() => {
 		mounted.current = true; void refresh();
-		const off = window.lh?.subscriptions?.onChange(() => { void refresh(); notifySettingsSaved("keys"); });
+		const off = bridge?.onChange(() => { void refresh(); notifySettingsSaved("keys"); });
 		return () => { mounted.current = false; generation.current++; off?.(); };
 		// The root-lifetime subscriber reads current state through refs.
-	}, []);
+	}, [bridge]);
 	useEffect(() => { setPromptValue(""); }, [prompt?.id]);
 	function open(providerId: NativeSubscriptionProviderId) {
 		if (operation || statusesRef.current.some((s) => s.pending)) return;
@@ -74,7 +81,6 @@ export function NativeSubscriptionUIProvider({ children }: { children: React.Rea
 	function close() {
 		if (!dialog || busy) return;
 		if (confirm) { setConfirm(false); setError(null); return; }
-		const bridge = window.lh?.subscriptions;
 		if ((status?.pending || operation === "login") && bridge) { void control(() => bridge.cancel(dialog), true); return; }
 		generation.current++; setDialog(null); setError(null);
 	}
@@ -83,14 +89,12 @@ export function NativeSubscriptionUIProvider({ children }: { children: React.Rea
 		generation.current++; setError(null); setConfirm(false); setBackground(status.allowBackgroundUse); setBackgroundDirty(false); setView("notice");
 	}
 	async function login() {
-		const bridge = window.lh?.subscriptions;
 		if (!dialog || !bridge || operation || !status?.available) return;
 		const owner = ++generation.current; setOperation("login"); setError(null);
 		try { await bridge.login(dialog, backgroundDirty ? background : undefined); await refresh(); if (mounted.current && generation.current === owner) setDialog(null); }
 		catch { if (mounted.current && generation.current === owner) setError(SIGN_IN_FAILED); }
 		finally { if (mounted.current && generation.current === owner) setOperation(null); }
 	}
-	const bridge = typeof window === "undefined" ? undefined : window.lh?.subscriptions;
 	const errorKey = error ? LOCAL_MESSAGES.get(error) : undefined;
 	return <Context.Provider value={{ statuses, busy: !!operation, open }}>
 		{children}
@@ -98,9 +102,9 @@ export function NativeSubscriptionUIProvider({ children }: { children: React.Rea
 			<h2 className="text-sm font-semibold text-foreground">{descriptor.label}</h2>
 			{confirm ? <>
 				<p className="mt-3 text-sm font-semibold text-red-400">{t("settings.subscription.disconnectTitle", { label: descriptor.label })}</p>
-				<p className="mt-3 text-xs leading-relaxed text-muted-foreground">{subscriptionDisconnectCopy(descriptor.label, language)}</p>
+				<p className="mt-3 text-xs leading-relaxed text-muted-foreground">{subscriptionDisconnectCopy(descriptor.label, web, language)}</p>
 			</> : view === "notice" ? <>
-				<p className="mt-3 text-xs leading-relaxed text-muted-foreground" data-testid="subscription-privacy-notice">{subscriptionNotice(descriptor.label, language)}</p>
+				<p className="mt-3 text-xs leading-relaxed text-muted-foreground" data-testid="subscription-privacy-notice">{subscriptionNotice(descriptor.label, web, language)}</p>
 				{dialog === "github-copilot" && <p className="mt-3 text-xs leading-relaxed text-muted-foreground" data-testid="copilot-policy-notice">{t("settings.subscription.copilotNotice")}</p>}
 			</> : <>
 				<div className="mt-4 flex items-center gap-3 text-xs text-foreground">
