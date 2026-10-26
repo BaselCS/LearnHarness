@@ -5,6 +5,8 @@ import { Type } from "typebox";
 import { piEngineFor, type PiEngine, type ThinkingLevel } from "../models.ts";
 import { providerEventObserver, type ProviderEventObserver } from "../provider-events.ts";
 import type { PdfResult, PdfToolInput } from "../../core/contracts.ts";
+import type { AppLanguage } from "../../core/i18n.ts";
+import { workerPrompt } from "./worker-prompts.ts";
 import { getHeadless, type HeadlessApi } from "./headless.ts";
 import { pdfExtract, pdfInfo, pdfProbe, pdfSearch, type PdfSearchHit } from "./pdf-ops.ts";
 
@@ -70,6 +72,8 @@ export interface PdfReaderOptions {
 	maxIterations?: number;
 	/** Debug: raw provider-event recording key (LH_PROVIDER_EVENTS=1). */
 	chatId?: string;
+	/** The app language the instructions are in (absent = English). */
+	language?: AppLanguage;
 }
 
 export interface PdfReaderInput extends PdfToolInput {}
@@ -206,7 +210,7 @@ export async function runPdfReaderAgent(
 		for (let iteration = 0; iteration < maxIterations; iteration++) {
 			const result = await streamOnce(
 				engine,
-				INSTRUCTIONS,
+				workerPrompt("pdfReader", INSTRUCTIONS, opts.language),
 				messages,
 				toolDeclarations,
 				sessionId,
