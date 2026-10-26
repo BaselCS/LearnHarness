@@ -3,7 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import { BrailleSpinner } from "@/components/braille-spinner";
 import { Shimmer } from "@/components/ai-elements/shimmer";
-import { useT } from "@/components/i18n";
+import { useLanguage, useT } from "@/components/i18n";
 import { toolActivityLabel } from "@/src/core";
 import type { ArtifactPartProps } from "@/src/core";
 
@@ -30,8 +30,10 @@ interface StreamingToolPart {
 
 export function LiveToolCard({ part }: ArtifactPartProps) {
 	const t = useT();
+	const language = useLanguage();
 	const p = part as StreamingToolPart;
 	const tool = p.type.replace(/^tool-/, "");
+	const activity = toolActivityLabel(tool, language);
 	const inp = (p.input ?? {}) as Record<string, unknown>;
 	// The headline argument (ToolCallCard's rule, shown as given): path for
 	// read/ls, pattern for find/grep, session for list_propositions.
@@ -49,9 +51,9 @@ export function LiveToolCard({ part }: ArtifactPartProps) {
 			className="group my-1 w-full max-w-2xl select-none"
 		>
 			<summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground [&::-webkit-details-marker]:hidden">
-				<BrailleSpinner label={t("artifacts.liveTool.spinner", { label: toolActivityLabel(tool) })} />
+				<BrailleSpinner label={t("artifacts.liveTool.spinner", { label: activity })} />
 				<Shimmer duration={1} className="text-xs">
-					{toolActivityLabel(tool)}
+					{activity}
 				</Shimmer>
 				{arg && <span className="truncate">{arg}</span>}
 				<ChevronRight className="size-3 shrink-0 opacity-50 transition-transform group-open:rotate-90" />
