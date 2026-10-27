@@ -98,7 +98,7 @@ export function SettingsRow({
 export function SettingsMenuTrigger({
 	value, unavailable, disabled, className, ...props
 }: Omit<ComponentPropsWithRef<"button">, "value" | "children"> & {
-	value: string;
+	value: React.ReactNode;
 	unavailable?: boolean;
 }) {
 	return <button
