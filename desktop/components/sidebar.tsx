@@ -267,7 +267,7 @@ export function timeAgo(iso: string, now = new Date()): string {
  *  typography round 5): it informed no decision — clutter. messageCount
  *  still rides the API payload, so this is a one-line flip back if it's
  *  ever wanted. */
-function formatTimeAgoAr(iso: string, now = new Date()): string {
+export function formatTimeAgoAr(iso: string, now = new Date()): string {
 	const ms = now.getTime() - new Date(iso).getTime();
 	if (ms < 60_000) return "الآن";
 	const min = Math.floor(ms / 60_000);
