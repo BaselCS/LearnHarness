@@ -1,0 +1,59 @@
+{
+  "nodes": {
+    "linalg_vec": {
+      "label": "Vector as Displacement",
+      "status": "mastered",
+      "prerequisites": [],
+      "notes": "",
+      "updated_at": "2026-10-27T03:50:11.126175"
+    },
+    "linalg_span": {
+      "label": "Linear Combinations & Span",
+      "status": "mastered",
+      "prerequisites": [
+        "linalg_vec"
+      ],
+      "notes": "",
+      "updated_at": "2026-10-27T03:50:11.126495"
+    },
+    "linalg_trans": {
+      "label": "Matrices as Linear Transforms",
+      "status": "learning",
+      "prerequisites": [
+        "linalg_span"
+      ],
+      "notes": "",
+      "updated_at": "2026-10-27T03:50:11.126742"
+    },
+    "linalg_det": {
+      "label": "Determinant (Area/Volume Scaling)",
+      "status": "planned",
+      "prerequisites": [
+        "linalg_trans"
+      ],
+      "notes": "",
+      "updated_at": "2026-10-27T03:50:11.126948"
+    },
+    "fastapi_concurrency": {
+      "label": "FastAPI Async vs Def Concurrency",
+      "status": "mastered",
+      "prerequisites": [],
+      "notes": "async def runs on single event loop thread (ideal for I/O). def runs on external threadpool (ideal for blocking I/O or simple synchronous libs). Heavy CPU-bound requires ProcessPoolExecutor.",
+      "updated_at": "2026-10-27T06:02:58.955620"
+    }
+  },
+  "edges": [
+    {
+      "from": "linalg_vec",
+      "to": "linalg_span"
+    },
+    {
+      "from": "linalg_span",
+      "to": "linalg_trans"
+    },
+    {
+      "from": "linalg_trans",
+      "to": "linalg_det"
+    }
+  ]
+}

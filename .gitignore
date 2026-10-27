@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+desktop/node_modules/
+
+# Next.js build output
+.next/
+desktop/.next/
+desktop/dist/
+desktop/out/
+
+# Caches, logs, and artifacts
+*.log
+*.tsbuildinfo
+desktop/*.tsbuildinfo
+.DS_Store
+desktop/.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.pytest_cache/
+
+# Environment and sensitive credentials
+.env
+.env.local
+.env.*.local
+auth.json
+desktop/auth.json
+chatgpt-credentials.json*
+desktop/chatgpt-credentials.json*
+github-copilot-credentials.json*
+desktop/github-copilot-credentials.json*
+xai-credentials.json*
+desktop/xai-credentials.json*
+
+# Runtime data & scratch
+.fresh-data/
+desktop/.fresh-data/
+desktop/data/chats/
+desktop/data/jobs/
+.memory/
+desktop/.memory/
