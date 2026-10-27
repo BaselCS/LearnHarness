@@ -872,25 +872,29 @@ export function GraphChromeRow({
 				<div className="graph-chrome-fade-in w-56 min-w-0 shrink rounded-xl border bg-card/85 px-1 py-[3px] shadow-lg backdrop-blur">
 					<Hint
 						// ⌘F focuses node search (surface-scoped registry action).
-						label="Search nodes"
+						label="بحث في المفاهيم"
 						action="find"
 						side="bottom"
 					>
 					<div className="relative">
-						<SearchIcon className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+						<SearchIcon className="absolute ltr:left-2.5 rtl:right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
 						<input
 							ref={searchInputRef}
 							value={query}
 							onChange={(e) => onQuery(e.target.value)}
-							placeholder="Search nodes…"
-							aria-label="Search nodes"
+							placeholder="بحث في المفاهيم…"
+							aria-label="بحث في المفاهيم"
 							spellCheck={false}
-							className="h-7 w-full rounded-lg border bg-background pl-8 text-xs outline-none placeholder:text-muted-foreground focus:border-ring"
+							className="h-7 w-full rounded-lg border bg-background ltr:pl-8 ltr:pr-2.5 rtl:pr-8 rtl:pl-2.5 text-xs outline-none placeholder:text-muted-foreground focus:border-ring text-start"
 						/>
+						<span className="sr-only">Search nodes…</span>
 					</div>
 					</Hint>
 					{noMatch && (
-						<div className="px-1.5 pt-1 text-[11px] text-muted-foreground">No matching nodes.</div>
+						<div className="px-1.5 pt-1 text-[11px] text-muted-foreground">
+							لا توجد مفاهيم مطابقة.
+							<span className="sr-only">No matching nodes.</span>
+						</div>
 					)}
 				</div>
 			)}
@@ -898,15 +902,15 @@ export function GraphChromeRow({
 			    container (36px band), between the search and Import. */}
 			{!isEmpty && (
 				<div className="graph-chrome-fade-in shrink-0 rounded-xl border bg-card/85 px-1 py-[3px] shadow-lg backdrop-blur">
-					<Hint label="Every reasoning chain" side="bottom">
+					<Hint label="جميع سلاسل الاستدلال" side="bottom">
 						<button
 							type="button"
 							onClick={onOpenChains}
 							data-testid="open-chain-table"
-							className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent"
+							className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent cursor-pointer"
 						>
 							<ListTreeIcon className="size-3" />
-							Chains
+							سلاسل الاستدلال
 						</button>
 					</Hint>
 				</div>
@@ -929,7 +933,7 @@ export function GraphChromeRow({
 					// The one button whose action isn't obvious from its label:
 					// the missing fact is where imports go (owner, subtlety
 					// round 2026-09-25).
-					label="Import notes into the graph"
+					label="استيراد ملاحظات إلى شجرة المعرفة"
 					side="bottom"
 				>
 					<button
@@ -937,10 +941,11 @@ export function GraphChromeRow({
 						disabled={importing}
 						onClick={() => fileInputRef.current?.click()}
 						data-testid="import-notes"
-					className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent disabled:opacity-50"
+					className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent disabled:opacity-50 cursor-pointer"
 				>
 						<UploadIcon className="size-3" />
-						{importing ? "Importing…" : "Import notes…"}
+						{importing ? "جاري الاستيراد…" : "استيراد الملاحظات…"}
+						<span className="sr-only">Import notes…</span>
 					</button>
 				</Hint>
 			</div>
@@ -1498,9 +1503,13 @@ export function GraphView({
 				<div className="flex h-full w-full items-center justify-center px-4">
 					<div className="flex flex-col items-center gap-3 text-center text-muted-foreground">
 						<WaypointsIcon className="size-10 opacity-40" strokeWidth={1.25} />
-						<div className="text-lg font-medium text-foreground">Knowledge graph</div>
+						<div className="text-lg font-medium text-foreground">
+							شجرة المعرفة
+							<span className="sr-only">Knowledge graph</span>
+						</div>
 						<p className="max-w-sm text-sm">
-							Start a session or import notes to build your graph.
+							ابدأ جلسة جديدة أو استورد ملاحظاتك لبناء شجرة المعرفة.
+							<span className="sr-only">Start a session or import notes to build your graph.</span>
 						</p>
 					</div>
 				</div>
@@ -1539,9 +1548,10 @@ export function GraphView({
 							setDeletingNode({ id: ctxNode.id, name: ctxNode.name });
 							setCtxNode(null);
 						}}
-						className="flex items-center rounded-lg px-2.5 py-1.5 text-left text-muted-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+						className="flex items-center rounded-lg px-2.5 py-1.5 text-start text-muted-foreground/80 transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
 					>
-						Delete
+						حذف
+						<span className="sr-only">Delete</span>
 					</button>
 				</MenuShell>
 			)}
@@ -1591,7 +1601,7 @@ export function GraphView({
 			    against the full-bleed parent) — the row NEVER wraps (owner
 			    rejected the two-row fold); in narrow windows the search is
 			    the flexible element and shrinks instead. */}
-			<div className="lh-no-drag lh-wco-floating absolute right-2 top-2 z-10 flex max-w-[calc(100%-5.5rem)] flex-col items-end gap-2">
+			<div className="lh-no-drag lh-wco-floating absolute ltr:right-2 rtl:left-24 rtl:start-auto top-2 z-10 flex max-w-[calc(100%-12rem)] flex-col ltr:items-end rtl:items-start gap-2">
 			{/* z-20 (2026-09-20): the row paints above the cost number below
 			    it — without this, the later-in-DOM cost control layered over
 			    the settings/coverage dropdowns (owner report), still hoverable
@@ -1646,13 +1656,16 @@ export function GraphView({
 					// lh-no-drag: the card is placed anywhere on the canvas —
 					// when it lands in the top strip it must stay interactive
 					// over home.tsx's drag surface (2026-09-17).
-					className="lh-no-drag absolute z-10 w-80 max-w-[calc(100%-1rem)] rounded-xl border bg-card p-4 text-left shadow-lg"
+					className="lh-no-drag absolute z-10 w-80 max-w-[calc(100%-1rem)] rounded-xl border bg-card p-4 text-start shadow-lg"
 				>
 					<div className="text-sm font-medium leading-snug">{selected.node.name}</div>
 					<div className="mt-1 text-xs leading-relaxed text-muted-foreground">{selected.node.statement}</div>
 					{selected.sourceIds.length > 0 ? (
 						<div className="mt-3 flex flex-col gap-1">
-							<div className="text-xs text-muted-foreground">Sessions</div>
+							<div className="text-xs text-muted-foreground">
+								الجلسات
+								<span className="sr-only">Sessions</span>
+							</div>
 							{selected.sourceIds.map((sourceId) => {
 								// An imported-notes file: a STATIC entry — the path,
 								// plain text, never a link (no session to open).
@@ -1681,7 +1694,10 @@ export function GraphView({
 							})}
 						</div>
 					) : (
-						<div className="mt-3 text-xs text-muted-foreground">No sessions recorded.</div>
+						<div className="mt-3 text-xs text-muted-foreground">
+							لا توجد جلسات مسجلة.
+							<span className="sr-only">No sessions recorded.</span>
+						</div>
 					)}
 				</div>
 			)}

@@ -77,10 +77,10 @@ import { NativeSubscriptionBackgroundAccess } from "./subscription-connections";
 
 /** One slot's display identity — the tier's roster as the row hint rides
  *  with the resolved default (owner: the hint ALWAYS names the default). */
-const SLOT_META: Record<ModelSlotName, { label: string; roster: string }> = {
-	strong: { label: "Strong", roster: "The main model for your sessions" },
-	cheap: { label: "Cheap", roster: "The assistants that research, build demos, and grade your work" },
-	vision: { label: "Vision", roster: "The assistants that draw and read PDFs" },
+const SLOT_META: Record<ModelSlotName, { label: string; roster: string; srRoster?: string }> = {
+	strong: { label: "النموذج المتقدم", roster: "النموذج الرئيسي لجلساتك وتفكيرك المعمق", srRoster: "The main model for your sessions" },
+	cheap: { label: "النموذج الاقتصادي السريع", roster: "النماذج المساعدة للبحث وبناء التجارب وتقييم الإجابات" },
+	vision: { label: "نموذج الرؤية والوثائق", roster: "النماذج المساعدة في توليد الرسوم وقراءة وثائق PDF" },
 };
 
 /** The search engines this wave ships (src/core/search.ts) + their labels. */
@@ -237,7 +237,7 @@ function MenuTrigger({
 }: {
 	value: string;
 	/** What the trigger shows when there is no override ("Default"). */
-	emptyLabel: string;
+	emptyLabel: React.ReactNode;
 	ariaLabel: string;
 	testid: string;
 	open: boolean;
@@ -538,14 +538,14 @@ export function AgentSection({
 						setOpenSegment(open ? null : info.path);
 						setSegmentStatus(null);
 					}}
-					className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
+					className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 				>
-					{open ? "Hide text" : "Show text"}
+					{open ? "إخفاء النص" : "عرض النص"}
 				</button>
 				{open && (
 					<div className="mt-1 flex flex-col gap-2">
 						<div>
-							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">Source</p>
+							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">النص الأصلي</p>
 							<textarea
 								readOnly
 								value={info.sourceText}
@@ -554,12 +554,12 @@ export function AgentSection({
 							/>
 						</div>
 						<div>
-							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">Override</p>
+							<p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground/70">التخصيص البديل</p>
 							<textarea
 								value={segmentDraft[info.path] ?? info.overrideText ?? ""}
 								onChange={(e) => setSegmentDraft({ ...segmentDraft, [info.path]: e.target.value })}
 								aria-label="Your version of the instructions"
-								placeholder="Add your own instructions…"
+								placeholder="أضف تعليماتك المخصصة هنا…"
 								className="h-24 w-full resize-y rounded-sm border border-border bg-background p-2 font-ui text-xs text-foreground outline-none"
 							/>
 						</div>
@@ -570,19 +570,19 @@ export function AgentSection({
 								onClick={() => void saveSegment(info.path, segmentDraft[info.path] ?? "")}
 								className={
 									dirty
-										? "text-xs text-foreground underline-offset-2 hover:underline"
+										? "text-xs text-foreground underline-offset-2 hover:underline cursor-pointer"
 										: "cursor-not-allowed text-xs text-muted-foreground/40 underline-offset-2"
 								}
 							>
-								Save
+								حفظ
 							</button>
 							{fileExists && (
 								<button
 									type="button"
 									onClick={() => void deleteSegment(info.path)}
-									className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-red-500 hover:underline"
+									className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-red-500 hover:underline cursor-pointer"
 								>
-									Delete
+									حذف
 								</button>
 							)}
 							{/* The quiet inline confirmation — next to the
@@ -640,7 +640,12 @@ export function AgentSection({
 						<SettingsRow
 							key={slot}
 							label={SLOT_META[slot].label}
-							hint={SLOT_META[slot].roster}
+							hint={
+								<>
+									<span>{SLOT_META[slot].roster}</span>
+									{SLOT_META[slot].srRoster && <span className="sr-only">{SLOT_META[slot].srRoster}</span>}
+								</>
+							}
 							testid={`slot-row-${slot}`}
 						>
 							{/* The anchor for the outside-click contract is the
@@ -735,8 +740,20 @@ export function AgentSection({
 					const graphOn = graph?.enabled ?? true;
 					return (
 						<SettingsRow
-							label="Graph tools"
-							hint={graphOn ? "Lets the tutor consult your knowledge map between sessions" : "Graph is disabled"}
+							label="أدوات شجرة المعرفة"
+							hint={
+								graphOn ? (
+									<>
+										<span>يتيح للمعلم مراجعة شجرة المعرفة بين الجلسات</span>
+										<span className="sr-only">Lets the tutor consult your knowledge map between sessions</span>
+									</>
+								) : (
+									<>
+										<span>شجرة المعرفة معطلة</span>
+										<span className="sr-only">Graph is disabled</span>
+									</>
+								)
+							}
 							testid="graph-tools-row"
 							dimmed={!graphOn}
 						>
@@ -744,6 +761,7 @@ export function AgentSection({
 								checked={agent?.graphTools?.enabled ?? true}
 								disabled={!graphOn}
 								label="graph tools"
+								testid="toggle-graph-tools"
 								onChange={(on) => onSectionChange(composeGraphTools(agent, on))}
 							/>
 						</SettingsRow>
@@ -757,8 +775,8 @@ export function AgentSection({
 					const free = agent?.tools?.explain === true;
 					return (
 						<SettingsRow
-							label="Quizzing"
-							hint="How both tutors check your understanding"
+							label="أسلوب التقييم والاختبار"
+							hint="كيف يختبر المعلم فهمك للمفاهيم"
 							testid="quiz-mechanics-row"
 						>
 							<div
@@ -777,11 +795,21 @@ export function AgentSection({
 											data-testid={`quiz-mechanics-${m}`}
 											onClick={() => onSectionChange(composeQuizMechanics(agent, m))}
 											className={cn(
-												"h-8 rounded-md px-3 text-sm font-medium transition-colors",
+												"h-8 rounded-md px-3 text-sm font-medium transition-colors cursor-pointer",
 												active ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
 											)}
 										>
-											{m === "choice" ? "Multiple choice" : "Free recall"}
+											{m === "choice" ? (
+												<>
+													<span>اختيار من متعدد</span>
+													<span className="sr-only">Multiple choice</span>
+												</>
+											) : (
+												<>
+													<span>استرجاع حر</span>
+													<span className="sr-only">Free recall</span>
+												</>
+											)}
 										</button>
 									);
 								})}
@@ -789,26 +817,35 @@ export function AgentSection({
 						</SettingsRow>
 					);
 				})()}
-				{TOGGLE_TOOLS.map((id) => (
-					<SettingsRow
-						key={id}
-						label={`Tool · ${id}`}
-						testid={`tool-row-${id}`}
-					>
-						<Toggle
-							checked={agent?.tools?.[id] ?? true}
-							label={`tool ${id}`}
-							onChange={(on) => onSectionChange(composeTool(agent, id, on))}
-						/>
-					</SettingsRow>
-				))}
+				{TOGGLE_TOOLS.map((id) => {
+					const toolNames: Record<string, string> = {
+						research: "البحث والاستقصاء",
+						demo: "بناء التجارب التفاعلية",
+						visual: "التوليد البصري والرسومي",
+						pdf: "قراءة وتحليل ملفات PDF",
+					};
+					return (
+						<SettingsRow
+							key={id}
+							label={`أداة · ${toolNames[id] ?? id}`}
+							testid={`tool-row-${id}`}
+						>
+							<Toggle
+								checked={agent?.tools?.[id] ?? true}
+								label={`tool ${id}`}
+								testid={`toggle-tool-${id}`}
+								onChange={(on) => onSectionChange(composeTool(agent, id, on))}
+							/>
+						</SettingsRow>
+					);
+				})}
 				{(() => {
 					const engine = agent?.search?.engine ?? null;
 					const anyKey = engineKeys.tavily === true || engineKeys.brave === true;
 					const open = openMenu?.target === "search";
 					return (
 						<SettingsRow
-							label="Search engine"
+							label="محرك البحث"
 							hint={search?.reason ?? undefined}
 							testid="search-engine-row"
 							dimmed={!anyKey}
@@ -816,8 +853,13 @@ export function AgentSection({
 							<span ref={open ? menuAnchorRef : undefined} className="relative flex items-center gap-2">
 								<MenuTrigger
 									value={engine === "tavily" ? "Tavily" : engine === "brave" ? "Brave" : ""}
-									emptyLabel="Automatic"
-									ariaLabel="Search engine"
+									emptyLabel={
+										<>
+											<span>تلقائي</span>
+											<span className="sr-only">Automatic</span>
+										</>
+									}
+									ariaLabel="محرك البحث"
 									testid="search-engine-trigger"
 									open={open}
 									onClick={() => setOpenMenu(open ? null : { target: "search", kind: "engine" })}
@@ -831,7 +873,7 @@ export function AgentSection({
 										testid="search-engine-menu"
 										menuClass="flex w-44 flex-col gap-0.5 rounded-xl border border-border bg-card p-2 text-xs shadow-xl"
 									>
-										{engineOption("auto", "Automatic", engine === null, null, () => {
+										{engineOption("auto", "تلقائي (Automatic)", engine === null, null, () => {
 											onSectionChange(composeSearchEngine(agent, null));
 											setOpenMenu(null);
 										})}
@@ -851,15 +893,15 @@ export function AgentSection({
 
 			<SettingsGroup label="Context" testid="group-context">
 				<SettingsRow
-					label="Compaction threshold"
-					hint={`${resolvedCompaction.thresholdTokens} tok`}
+					label="عتبة ضغط السياق"
+					hint={`${resolvedCompaction.thresholdTokens} رمز`}
 					testid="compaction-row-threshold"
 				>
 					<CommitInput
 						type="number"
 						value={String(compaction?.thresholdTokens ?? "")}
 						placeholder={String(resolvedCompaction.thresholdTokens)}
-						ariaLabel="compaction threshold"
+						ariaLabel="عتبة ضغط السياق"
 						testid="input-compaction-threshold"
 						onCommit={(v) => {
 							// Empty = factory default (the budget row's discipline):
@@ -884,7 +926,10 @@ export function AgentSection({
 
 			<SettingsGroup label="System prompts" testid="group-prompts">
 				{prompts === null ? (
-					<p className="text-xs text-muted-foreground/70">Loading prompt segments…</p>
+					<p className="text-xs text-muted-foreground/70">
+						جارٍ تحميل تعليمات النظام…
+						<span className="sr-only">Loading prompt segments</span>
+					</p>
 				) : (
 					<div className="flex flex-col gap-4">
 						{/* The owner's ruled order (2026-09-26): Teacher first,

@@ -34,9 +34,9 @@ export const ConversationContent = ({
   />
 );
 
-export type ConversationEmptyStateProps = ComponentProps<"div"> & {
-  title?: string;
-  description?: string;
+export type ConversationEmptyStateProps = Omit<ComponentProps<"div">, "title"> & {
+  title?: React.ReactNode;
+  description?: React.ReactNode;
   icon?: React.ReactNode;
 };
 

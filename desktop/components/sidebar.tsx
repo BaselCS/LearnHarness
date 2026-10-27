@@ -267,14 +267,47 @@ export function timeAgo(iso: string, now = new Date()): string {
  *  typography round 5): it informed no decision — clutter. messageCount
  *  still rides the API payload, so this is a one-line flip back if it's
  *  ever wanted. */
-function sessionMeta(chat: ChatListItem): string {
-	if (chat.compacting) return `Compacting context · ${timeAgo(chat.updatedAt)}`;
-	if (chat.pendingQuestion) return `Waiting for input · ${timeAgo(chat.updatedAt)}`;
-	if ((chat.kind ?? "teach") === "practice" && chat.pendingProblem) {
-		return `Problem waiting · ${timeAgo(chat.updatedAt)}`;
+function formatTimeAgoAr(iso: string, now = new Date()): string {
+	const ms = now.getTime() - new Date(iso).getTime();
+	if (ms < 60_000) return "الآن";
+	const min = Math.floor(ms / 60_000);
+	if (min < 60) return `منذ ${min} د`;
+	const h = Math.floor(min / 60);
+	if (h < 24) return `منذ ${h} س`;
+	const d = Math.floor(h / 24);
+	if (d < 7) return `منذ ${d} ي`;
+	const date = new Date(iso);
+	const mm = String(date.getMonth() + 1).padStart(2, "0");
+	const dd = String(date.getDate()).padStart(2, "0");
+	return `${date.getFullYear()}-${mm}-${dd}`;
+}
+
+function sessionMeta(chat: ChatListItem): React.ReactNode {
+	const enTime = timeAgo(chat.updatedAt);
+	const arTime = formatTimeAgoAr(chat.updatedAt);
+
+	let enState = enTime;
+	let arState = arTime;
+	if (chat.compacting) {
+		enState = `Compacting context · ${enTime}`;
+		arState = `ضغط السياق · ${arTime}`;
+	} else if (chat.pendingQuestion) {
+		enState = `Waiting for input · ${enTime}`;
+		arState = `بانتظار الإجابة · ${arTime}`;
+	} else if ((chat.kind ?? "teach") === "practice" && chat.pendingProblem) {
+		enState = `Problem waiting · ${enTime}`;
+		arState = `مسألة بانتظار الحل · ${arTime}`;
+	} else if (chat.busy) {
+		enState = "Working…";
+		arState = "جاري العمل…";
 	}
-	if (chat.busy) return "Working…";
-	return timeAgo(chat.updatedAt);
+
+	return (
+		<>
+			<span className="sr-only">{enState}</span>
+			<span aria-hidden="true">{arState}</span>
+		</>
+	);
 }
 
 /**
@@ -693,32 +726,32 @@ function SessionsSidebar() {
 				    half/half row): full-width rows read cleaner and give the
 				    labels room; teaching keeps the original draft route,
 				    practice carries its mode. */}
-				<div className="mx-3 mb-2 flex flex-col gap-1.5">
+				<div className="mx-3 mb-3 flex flex-col gap-1.5">
 					<button
 						type="button"
 						data-testid="new-session"
 						onClick={() => void newSession()}
-						className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+						className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
 					>
-						<PlusIcon className="size-3" />
-						Teaching
-						<span className="sr-only">create a new teaching session</span>
+						<PlusIcon className="size-4" />
+						<span>تدريس</span>
+						<span className="sr-only">بدء جلسة تدريس جديدة</span>
 					</button>
 					<button
 						type="button"
 						data-testid="new-session-practice"
 						onClick={() => router.push("/chat/new?mode=practice")}
-						className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+						className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
 					>
-						<DumbbellIcon className="size-3" />
-						Practice
-						<span className="sr-only">create a new practice session</span>
+						<DumbbellIcon className="size-4" />
+						<span>ممارسة</span>
+						<span className="sr-only">بدء جلسة ممارسة جديدة</span>
 					</button>
 				</div>
 
 				<div className="mx-3 mb-2 flex items-center gap-2">
-					<span className="text-xs uppercase tracking-widest text-muted-foreground/70">Sessions</span>
-					<Hint label="Search sessions" action="sessions-search" side="bottom">
+					<span className="text-sm font-semibold tracking-wide text-muted-foreground/80">الجلسات</span>
+					<Hint label="بحث في الجلسات" action="sessions-search" side="bottom">
 					<span className="relative flex-1">
 						<Input
 							ref={searchRef}
@@ -768,11 +801,11 @@ function SessionsSidebar() {
 									e.currentTarget.blur();
 								}
 							}}
-							placeholder="Search…"
-							aria-label="Search sessions"
-							className="h-6 rounded-sm border-border bg-background pl-6 text-xs placeholder:text-muted-foreground/60"
+							placeholder="بحث…"
+							aria-label="بحث في الجلسات"
+							className="h-6 rounded-sm border-border bg-background pr-6 text-xs placeholder:text-muted-foreground/60"
 						/>
-						<SearchIcon className="pointer-events-none absolute left-1.5 top-1/2 size-3 -translate-y-1/2 text-muted-foreground/70" />
+						<SearchIcon className="pointer-events-none absolute right-1.5 top-1/2 size-3 -translate-y-1/2 text-muted-foreground/70" />
 					</span>
 					</Hint>
 				</div>
@@ -798,17 +831,17 @@ function SessionsSidebar() {
 									: "text-muted-foreground hover:text-foreground",
 							)}
 						>
-							{f === "teach" ? "Teaching" : f === "all" ? "All" : "Practice"}
+							{f === "teach" ? "تدريس" : f === "all" ? "الكل" : "ممارسة"}
 						</button>
 					))}
 				</div>
 
 				<div ref={listRef} className="flex-1 overflow-y-auto p-2">
 					{shown === null ? (
-						<div className="px-2 py-4 text-xs text-muted-foreground">Loading…</div>
+						<div className="px-2 py-4 text-xs text-muted-foreground">جاري التحميل…</div>
 					) : shown.length === 0 ? (
 						<div className="px-2 py-4 text-xs text-muted-foreground">
-							{query.trim() ? "No sessions match." : "No sessions yet."}
+							{query.trim() ? "لا توجد جلسات مطابقة." : "لا توجد جلسات بعد."}
 						</div>
 					) : (
 						shown.map((c, i) =>
@@ -847,15 +880,15 @@ function SessionsSidebar() {
 					    New session — quiet, bottom-pinned, opens the centered
 					    dialog (also mod+, in the keyboard registry). */}
 					<div className="px-3 pb-3 pt-1">
-						<Hint label="Settings" action="open-settings" side="right">
+						<Hint label="الإعدادات" action="open-settings" side="right">
 							<button
 								type="button"
 								onClick={() => openSettings()}
 								data-testid="settings-entry"
-								className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+								className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
 							>
-								<SettingsIcon className="size-3" />
-								Settings
+								<SettingsIcon className="size-4" />
+								<span>الإعدادات</span>
 							</button>
 						</Hint>
 					</div>

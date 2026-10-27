@@ -246,18 +246,19 @@ export function ChainTableBody({
 			    law: later in the DOM). */}
 			<TopBar>
 				<span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-					{chains.length} {chains.length === 1 ? "chain" : "chains"} · {nodes.length} {nodes.length === 1 ? "node" : "nodes"}
+					<span>{chains.length} {chains.length === 1 ? "سلسلة" : "سلاسل"} · {nodes.length} {nodes.length === 1 ? "مفهوم" : "مفاهيم"}</span>
+					<span className="sr-only">{chains.length} {chains.length === 1 ? "chain" : "chains"} · {nodes.length} {nodes.length === 1 ? "node" : "nodes"}</span>
 				</span>
 				<div className="relative shrink-0">
-					<SearchIcon className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+					<SearchIcon className="absolute ltr:left-2.5 rtl:right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
 					<input
 						value={query}
 						data-testid="chain-table-search"
 						onChange={(e) => onQuery(e.target.value)}
-						placeholder="Search nodes…"
+						placeholder="بحث في المفاهيم…"
 						aria-label="Search nodes"
 						spellCheck={false}
-						className="lh-no-drag h-8 w-56 rounded-lg border bg-background pl-8 pr-3 text-xs outline-none placeholder:text-muted-foreground focus:border-ring"
+						className="lh-no-drag h-8 w-56 rounded-lg border bg-background ltr:pl-8 ltr:pr-3 rtl:pr-8 rtl:pl-3 text-xs outline-none placeholder:text-muted-foreground focus:border-ring"
 					/>
 				</div>
 			<button
@@ -265,7 +266,8 @@ export function ChainTableBody({
 					data-testid="chain-table-close"
 					onClick={onClose}
 					aria-label="Close chains"
-					className="lh-no-drag flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+					title="إغلاق سلاسل الاستدلال"
+					className="lh-no-drag flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
 				>
 					<XIcon className="size-4" />
 				</button>
@@ -286,33 +288,40 @@ export function ChainTableBody({
 						data-testid="sort-name"
 						onClick={() => onSort("name")}
 						aria-sort={sort.col === "name" ? (sort.dir === 1 ? "ascending" : "descending") : "none"}
-						className="flex flex-1 items-center gap-1 text-left transition-colors hover:text-foreground"
+						className="flex flex-1 items-center gap-1 text-start transition-colors hover:text-foreground cursor-pointer"
 					>
-						Name {dirIcon("name")}
+						<span>الاسم</span>
+						<span className="sr-only">Name</span>
+						{dirIcon("name")}
 					</button>
 					<button
 						type="button"
 						data-testid="sort-props"
 						onClick={() => onSort("props")}
 						aria-sort={sort.col === "props" ? (sort.dir === 1 ? "ascending" : "descending") : "none"}
-						className="flex w-14 shrink-0 items-center justify-end gap-1 text-right transition-colors hover:text-foreground"
+						className="flex w-14 shrink-0 items-center justify-end gap-1 text-end transition-colors hover:text-foreground cursor-pointer"
 					>
-						Props {dirIcon("props")}
+						<span>المفاهيم</span>
+						<span className="sr-only">Props</span>
+						{dirIcon("props")}
 					</button>
 					<button
 						type="button"
 						data-testid="sort-created"
 						onClick={() => onSort("created")}
 						aria-sort={sort.col === "created" ? (sort.dir === 1 ? "ascending" : "descending") : "none"}
-						className="flex w-20 shrink-0 items-center justify-end gap-1 text-right transition-colors hover:text-foreground"
+						className="flex w-20 shrink-0 items-center justify-end gap-1 text-end transition-colors hover:text-foreground cursor-pointer"
 					>
-						Created {dirIcon("created")}
+						<span>التاريخ</span>
+						<span className="sr-only">Created</span>
+						{dirIcon("created")}
 					</button>
 				</div>
 
 				{groups.length === 0 && (
 					<div data-testid="chain-table-nomatch" className="px-4 pt-3 text-xs text-muted-foreground">
-						No matching chains.
+						<span>لا توجد سلاسل استدلال مطابقة.</span>
+						<span className="sr-only">No matching chains.</span>
 					</div>
 				)}
 
@@ -493,16 +502,20 @@ export function ChainTableBody({
 						className="pointer-events-auto flex items-center gap-3 rounded-full border bg-card px-4 py-2 shadow-lg"
 					>
 						<span data-testid="chain-selected-summary" className="text-xs font-medium">
-							{selection.size} {selection.size === 1 ? "node" : "nodes"} →{" "}
-							{derived.length} {derived.length === 1 ? "chain" : "chains"}
+							<span>{selection.size} {selection.size === 1 ? "مفهوم" : "مفاهيم"} ← {derived.length} {derived.length === 1 ? "سلسلة" : "سلاسل"}</span>
+							<span className="sr-only">
+								{selection.size} {selection.size === 1 ? "node" : "nodes"} →{" "}
+								{derived.length} {derived.length === 1 ? "chain" : "chains"}
+							</span>
 						</span>
 						<button
 							type="button"
 							data-testid="chain-clear"
 							onClick={onClear}
-							className="rounded-full px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+							className="rounded-full px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
 						>
-							Clear
+							<span>مسح التحديد</span>
+							<span className="sr-only">Clear</span>
 						</button>
 						{selectMode ? (
 							<button
@@ -510,10 +523,11 @@ export function ChainTableBody({
 								data-testid="chain-practice-done"
 								onClick={onSelect}
 								aria-label={`Done picking — ${selection.size} ${selection.size === 1 ? "proposition" : "propositions"} selected`}
-								className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+								className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/80 cursor-pointer"
 							>
 								<DumbbellIcon aria-hidden="true" className="size-3.5" />
-								Done
+								<span>بدء الممارسة</span>
+								<span className="sr-only">Done</span>
 							</button>
 						) : (
 							<>
@@ -527,10 +541,11 @@ export function ChainTableBody({
 								data-testid="chain-delete"
 								onClick={onDelete}
 								aria-label={`Delete ${selection.size} selected ${selection.size === 1 ? "node" : "nodes"}`}
-								className="flex items-center gap-1.5 rounded-full border border-destructive/50 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
+								className="flex items-center gap-1.5 rounded-full border border-destructive/50 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 cursor-pointer"
 							>
 								<Trash2Icon aria-hidden="true" className="size-3.5" />
-								Delete
+								<span>حذف</span>
+								<span className="sr-only">Delete</span>
 							</button>
 							</>
 						)}

@@ -163,7 +163,7 @@ function KeyTableRow({
 						onKeyDown={(e) => {
 							if (e.key === "Enter") void save();
 						}}
-						placeholder="Paste key…"
+						placeholder="الصق المفتاح هنا…"
 						aria-label={`${label} key`}
 						data-testid={`${testid}-input`}
 						disabled={busy}
@@ -175,18 +175,18 @@ function KeyTableRow({
 						onClick={() => void save()}
 						disabled={busy || !value.trim()}
 						data-testid={`${testid}-save`}
-						className="shrink-0 text-xs text-foreground underline-offset-2 hover:underline disabled:text-muted-foreground/40 disabled:no-underline"
+						className="shrink-0 text-xs text-foreground underline-offset-2 hover:underline disabled:text-muted-foreground/40 disabled:no-underline cursor-pointer"
 					>
-						Save
+						حفظ
 					</button>
 					<button
 						type="button"
 						onClick={onCancel}
 						disabled={busy}
 						data-testid={`${testid}-cancel`}
-						className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
+						className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 					>
-						Cancel
+						إلغاء
 					</button>
 					{status.present && status.source === "file" && onDelete && (
 						<button
@@ -194,9 +194,9 @@ function KeyTableRow({
 							onClick={() => void onDelete()}
 							disabled={busy}
 							data-testid={`${testid}-delete`}
-							className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-red-500 hover:underline"
+							className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-red-500 hover:underline cursor-pointer"
 						>
-							Delete
+							حذف
 						</button>
 					)}
 				</div>
@@ -209,6 +209,13 @@ function KeyTableRow({
 		);
 	}
 
+	const rawStatus = keyStatusLine(status);
+	const displayStatus = rawStatus === "not set"
+		? "غير مضبوط"
+		: rawStatus.endsWith(" · env")
+			? rawStatus.replace(" · env", " · بيئة")
+			: rawStatus;
+
 	return (
 		<div data-testid={testid} className={envOwned ? "opacity-40" : undefined}>
 			<button
@@ -216,25 +223,25 @@ function KeyTableRow({
 				aria-expanded={expanded}
 				data-testid={`${testid}-row`}
 				onClick={() => !envOwned && onToggle()}
-				className={`flex w-full items-center justify-between gap-3 rounded-sm px-1 py-1.5 text-left ${
+				className={`flex w-full items-center justify-between gap-3 rounded-sm px-1 py-1.5 text-start ${
 					envOwned ? "cursor-default" : "cursor-pointer transition-colors hover:bg-accent/50"
 				}`}
 			>
-				<span className="font-ui text-xs text-foreground">{label}</span>
-				<span className="flex items-center gap-2">
+				<span className="font-ui text-sm font-medium text-foreground shrink-0">{label}</span>
+				<span className="flex items-center gap-2 whitespace-nowrap shrink-0">
 					{docsUrl && (
 						<a
 							href={docsUrl}
 							target="_blank"
 							rel="noreferrer"
 							onClick={(e) => e.stopPropagation()}
-							className="text-[10px] text-muted-foreground/60 underline-offset-2 hover:text-foreground hover:underline"
+							className="text-xs text-muted-foreground/60 underline-offset-2 hover:text-foreground hover:underline"
 						>
-							key ↗
+							المفتاح ↗
 						</a>
 					)}
-					<span data-testid={`${testid}-status`} className="font-mono text-[11px] text-muted-foreground">
-						{keyStatusLine(status)}
+					<span data-testid={`${testid}-status`} className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+						{displayStatus}
 					</span>
 				</span>
 			</button>
@@ -288,10 +295,10 @@ function AddProviderRow({
 				aria-expanded={open}
 				data-testid="add-provider"
 				onClick={() => setOpen((v) => !v)}
-				className="flex w-full items-center justify-between gap-3 rounded-sm px-1 py-1.5 text-left font-ui text-xs text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+				className="flex w-full items-center justify-between gap-3 rounded-sm px-1 py-1.5 text-start font-ui text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground cursor-pointer"
 			>
-				<span>+ Add provider key</span>
-				{addable.length > 0 && <span className="font-mono text-[11px]">{addable.length}</span>}
+				<span>+ إضافة مفتاح مزود</span>
+				{addable.length > 0 && <span className="font-mono text-xs">{addable.length}</span>}
 			</button>
 			{open && (
 				<MenuShell
@@ -397,7 +404,7 @@ export function KeysSection({
 	}
 
 	if (loading || statuses === null) {
-		return <p className="px-6 py-5 text-xs text-muted-foreground/70">Loading keys…</p>;
+		return <p className="px-6 py-5 text-xs text-muted-foreground/70">جارٍ تحميل المفاتيح…<span className="sr-only">Loading keys…</span></p>;
 	}
 
 	const { providerRows, toolRows, unknownRows, addable } = classifyKeys(statuses, providers);
@@ -413,7 +420,7 @@ export function KeysSection({
 
 	return (
 		<>
-			<SettingsGroup label="Model API keys" testid="group-provider-keys">
+			<SettingsGroup label="Model API keys" arLabel="مفاتيح واجهات النماذج" testid="group-provider-keys">
 				{providerRows.map((status) => (
 					<KeyTableRow
 						key={status.id}
@@ -455,11 +462,17 @@ export function KeysSection({
 				</div>}
 			</SettingsGroup>
 
-			<SettingsGroup label="Subscriptions" testid="group-subscriptions">
+			<SettingsGroup label="Subscriptions" arLabel="الاشتراكات المباشرة" testid="group-subscriptions">
 				<SubscriptionConnections />
 			</SettingsGroup>
 
-			{(["Dictation", "Search"] as const).map((label) => <SettingsGroup key={label} label={label} testid={label === "Dictation" ? "group-dictation" : "group-search"}>
+			{(["Dictation", "Search"] as const).map((label) => (
+				<SettingsGroup
+					key={label}
+					label={label}
+					arLabel={label === "Dictation" ? "الإملاء الصوتي" : "محركات البحث"}
+					testid={label === "Dictation" ? "group-dictation" : "group-search"}
+				>
 				{toolRows.filter((status) => label === "Dictation" ? status.id === "DEEPGRAM_API_KEY" : status.id !== "DEEPGRAM_API_KEY").map((status) => (
 					<KeyTableRow
 						key={status.id}
@@ -478,7 +491,8 @@ export function KeysSection({
 						testid={`key-${status.id.toLowerCase()}`}
 					/>
 				))}
-			</SettingsGroup>)}
+			</SettingsGroup>
+			))}
 
 		</>
 	);
@@ -507,7 +521,7 @@ function AddProviderEditor({
 				onKeyDown={(e) => {
 					if (e.key === "Enter" && value.trim()) onSave(value);
 				}}
-				placeholder="Paste key…"
+				placeholder="الصق المفتاح هنا…"
 				aria-label={`${provider.label} key`}
 				data-testid={`key-${provider.id}-input`}
 				autoFocus
@@ -518,17 +532,17 @@ function AddProviderEditor({
 				onClick={() => value.trim() && onSave(value)}
 				disabled={!value.trim()}
 				data-testid={`key-${provider.id}-save`}
-				className="shrink-0 text-xs text-foreground underline-offset-2 hover:underline disabled:text-muted-foreground/40 disabled:no-underline"
+				className="shrink-0 text-xs text-foreground underline-offset-2 hover:underline disabled:text-muted-foreground/40 disabled:no-underline cursor-pointer"
 			>
-				Save
+				حفظ
 			</button>
 			<button
 				type="button"
 				onClick={onCancel}
 				data-testid={`key-${provider.id}-cancel`}
-				className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
+				className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 			>
-				Cancel
+				إلغاء
 			</button>
 			{error && (
 				<p role="alert" className="w-full pl-0 text-xs text-red-500" data-testid={`key-${provider.id}-error`}>

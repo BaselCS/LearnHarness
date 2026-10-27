@@ -186,14 +186,29 @@ export function AppearanceSection({
 
 	return (
 		<>
-			<SettingsRow label="Mode" hint="Coming soon" testid="row-mode" dimmed>
+			<SettingsRow
+				label="الوضع (المظهر)"
+				hint={
+					<>
+						<span>قريباً</span>
+						<span className="sr-only">Coming soon</span>
+					</>
+				}
+				testid="row-mode"
+				dimmed
+			>
 				<ThinSelect value="dark" ariaLabel="mode" onChange={() => {}} testid="select-mode" disabled>
-					<option value="dark">Dark</option>
+					<option value="dark">داكن (Dark)</option>
 				</ThinSelect>
 			</SettingsRow>
 			<SettingsRow
-				label="Background"
-				hint={`Empty = ${resolved.background ?? "#141414"}`}
+				label="لون الخلفية"
+				hint={
+					<>
+						<span>فارغ = {resolved.background ?? "#141414"}</span>
+						<span className="sr-only">Empty = {resolved.background ?? "#141414"}</span>
+					</>
+				}
 				testid="row-background"
 			>
 				<CommitInput
@@ -205,8 +220,13 @@ export function AppearanceSection({
 				/>
 			</SettingsRow>
 			<SettingsRow
-				label="Reading font"
-				hint={`Empty = ${DEFAULT_READING_FONT}`}
+				label="خط القراءة"
+				hint={
+					<>
+						<span>فارغ = {DEFAULT_READING_FONT}</span>
+						<span className="sr-only">Empty = {DEFAULT_READING_FONT}</span>
+					</>
+				}
 				testid="row-font"
 			>
 				<span ref={fontMenuOpen ? menuAnchorRef : undefined} className="relative flex items-center gap-2">
@@ -226,7 +246,7 @@ export function AppearanceSection({
 								aria-expanded={fontMenuOpen}
 								data-testid="font-trigger"
 								onClick={openFontMenu}
-								className="flex h-7 min-w-20 items-center gap-1 rounded-sm border border-border bg-background px-1.5 font-ui text-xs text-foreground transition-colors hover:border-muted-foreground/50"
+								className="flex h-7 min-w-20 items-center gap-1 rounded-sm border border-border bg-background px-1.5 font-ui text-xs text-foreground transition-colors hover:border-muted-foreground/50 cursor-pointer"
 							>
 								<span className="min-w-0 flex-1 truncate">{appearance?.fontFamily || DEFAULT_READING_FONT}</span>
 								<span aria-hidden className="text-muted-foreground">
@@ -237,7 +257,7 @@ export function AppearanceSection({
 						return fontMenuOpen ? (
 							triggerButton
 						) : (
-							<Hint label="Choose from your installed fonts" side="left">
+							<Hint label="اختر من الخطوط المثبتة على جهازك" side="left">
 								{triggerButton}
 							</Hint>
 						);
@@ -258,16 +278,25 @@ export function AppearanceSection({
 										? undefined
 										: localFonts === null
 											? enumEmpty
-												? "Common families — installed fonts could not be read"
-												: "Common families — your installed list needs the desktop app"
-											: "Your installed fonts"
+												? "خطوط شائعة — تعذر قراءة الخطوط المثبتة"
+												: "خطوط شائعة — تتطلب قائمة الخطوط المثبتة تطبيق سطح المكتب"
+											: "الخطوط المثبتة على جهازك"
 								}
 							/>
 						</MenuShell>
 					)}
 				</span>
 			</SettingsRow>
-			<SettingsRow label="Reading font size" hint={`${resolved.proseFontSize}px`} testid="row-prose-size">
+			<SettingsRow
+				label="حجم خط القراءة"
+				hint={
+					<>
+						<span>{resolved.proseFontSize} بكسل</span>
+						<span className="sr-only">{resolved.proseFontSize}px</span>
+					</>
+				}
+				testid="row-prose-size"
+			>
 				<CommitInput
 					type="number"
 					value={String(appearance?.proseFontSize ?? "")}
@@ -288,14 +317,14 @@ export function AppearanceSection({
 					}}
 				/>
 			</SettingsRow>
-			<SettingsRow label="Session names in serif" testid="row-session-serif">
+			<SettingsRow label="عناوين الجلسات بخط كلاسيكي (Serif)" testid="row-session-serif">
 				<Toggle
 					checked={appearance?.sessionNameSerif ?? true}
 					label="session names serif"
 					onChange={(on) => onSectionChange({ ...appearance, sessionNameSerif: on })}
 				/>
 			</SettingsRow>
-			<SettingsRow label="Heading weight" hint={`${resolved.mdRendering.headingWeight}`} testid="row-heading-weight">
+			<SettingsRow label="سماكة العناوين" hint={`${resolved.mdRendering.headingWeight}`} testid="row-heading-weight">
 				<CommitInput
 					type="number"
 					value={String(md?.headingWeight ?? "")}
@@ -321,7 +350,16 @@ export function AppearanceSection({
 			{/* The emphasis inks default to the REGULAR TEXT COLOR now
 			    (appearance wave, 2026-09-26) — the empty-state labels say
 			    so; explicit hex overrides ride unchanged. */}
-			<SettingsRow label="Bold color" hint="Empty = same as text" testid="row-bold-color">
+			<SettingsRow
+				label="لون النص العريض"
+				hint={
+					<>
+						<span>فارغ = مثل النص الأساسي</span>
+						<span className="sr-only">Empty = same as text</span>
+					</>
+				}
+				testid="row-bold-color"
+			>
 				<CommitInput
 					value={md?.boldColor ?? ""}
 					placeholder="same as text"
@@ -330,7 +368,16 @@ export function AppearanceSection({
 					onCommit={(v) => onSectionChange({ ...appearance, mdRendering: { ...md, boldColor: v === "" ? null : v } })}
 				/>
 			</SettingsRow>
-			<SettingsRow label="Italic color" hint="Empty = same as text" testid="row-italic-color">
+			<SettingsRow
+				label="لون النص المائل"
+				hint={
+					<>
+						<span>فارغ = مثل النص الأساسي</span>
+						<span className="sr-only">Empty = same as text</span>
+					</>
+				}
+				testid="row-italic-color"
+			>
 				<CommitInput
 					value={md?.italicColor ?? ""}
 					placeholder="same as text"
@@ -370,14 +417,20 @@ export function GraphSection({
 			    switch below arrived: off ≠ no graph, off = the graph stops
 			    growing. The testid keeps the old name's shape (row-enabled) so
 			    this stays one rename, not a test re-pin. */}
-			<SettingsRow label="Extraction" hint="Off = the graph stops growing" testid="graph-row-enabled">
+			<SettingsRow
+				label="Extraction"
+				hint={
+					<>
+						<span>معطل = يتوقف نمو شجرة المعرفة</span>
+						<span className="sr-only">Off = the graph stops growing</span>
+					</>
+				}
+				testid="graph-row-enabled"
+			>
 				<Toggle
 					checked={graph?.enabled ?? true}
 					label="extraction enabled"
 					onChange={(on) =>
-						// Compose, never replace-whole (the section PUT is, but the
-					// row must not drop its sibling field — fixed with the budget
-					// row's arrival: the old { enabled: on } wiped a stored budget).
 						onSectionChange({ ...graph, enabled: on })
 					}
 				/>
@@ -386,7 +439,16 @@ export function GraphSection({
 			    round): display-only. Off = the home shows the chains view
 			    instead of the canvas. The ledgers, the pipeline, everything
 			    data keeps working — that is the extraction switch above. */}
-			<SettingsRow label="Graph rendering" hint="Off = home shows the chains view" testid="graph-row-rendering">
+			<SettingsRow
+				label="Graph rendering"
+				hint={
+					<>
+						<span>معطل = تعرض الصفحة الرئيسية سلاسل الاستدلال</span>
+						<span className="sr-only">Off = home shows the chains view</span>
+					</>
+				}
+				testid="graph-row-rendering"
+			>
 				<Toggle
 					checked={graph?.rendering ?? true}
 					label="graph rendering enabled"
@@ -394,8 +456,13 @@ export function GraphSection({
 				/>
 			</SettingsRow>
 			<SettingsRow
-				label="Extraction chunk budget"
-				hint={`${resolved.extractionChunkTokens} tok`}
+				label="ميزانية أجزاء الاستخراج"
+				hint={
+					<>
+						<span>{resolved.extractionChunkTokens} رمز</span>
+						<span className="sr-only">{resolved.extractionChunkTokens} tok</span>
+					</>
+				}
 				testid="graph-row-chunk-tokens"
 			>
 				<CommitInput

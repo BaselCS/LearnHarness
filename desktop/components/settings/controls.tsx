@@ -38,16 +38,27 @@ export function SettingsSection({
  *  separation — Models / Tools / Prompts read as three blocks). */
 export function SettingsGroup({
 	label,
+	arLabel,
 	children,
 	testid,
 }: {
-	label: string;
+	label: React.ReactNode;
+	arLabel?: React.ReactNode;
 	children: React.ReactNode;
 	testid?: string;
 }) {
 	return (
 		<div data-testid={testid} className="mt-5 border-t border-border/60 pt-4 first:mt-0 first:border-t-0 first:pt-0">
-			<p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
+			<div className="mb-2.5 text-sm font-semibold tracking-wide text-muted-foreground">
+				{arLabel ? (
+					<>
+						<span className="sr-only">{label}</span>
+						<span aria-hidden="true">{arLabel}</span>
+					</>
+				) : (
+					label
+				)}
+			</div>
 			<div className="flex flex-col gap-2">{children}</div>
 		</div>
 	);
@@ -62,7 +73,7 @@ export function SettingsRow({
 	testid,
 	dimmed,
 }: {
-	label: string;
+	label: ReactNode;
 	hint?: ReactNode;
 	children: React.ReactNode;
 	testid?: string;
@@ -89,6 +100,7 @@ export function Toggle({
 	label,
 	discIcon,
 	title,
+	testid,
 }: {
 	checked: boolean;
 	disabled?: boolean;
@@ -101,6 +113,7 @@ export function Toggle({
 	discIcon?: ReactNode;
 	/** Optional native tooltip on the switch. */
 	title?: string;
+	testid?: string;
 }) {
 	return (
 		<button
@@ -110,7 +123,7 @@ export function Toggle({
 			aria-label={label}
 			{...(title ? { title } : {})}
 			disabled={disabled}
-			data-testid={`toggle-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+			data-testid={testid ?? `toggle-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
 			onClick={() => onChange(!checked)}
 			className={cn(
 				"relative h-4.5 w-8 shrink-0 rounded-full border border-border transition-colors",

@@ -84,7 +84,12 @@ export function UpdateSettings({
 	return (
 		<>
 			<SettingsRow
-				label={`Version ${version || "unknown"}`}
+				label={
+					<>
+						<span>الإصدار {version || "غير معروف"}</span>
+						<span className="sr-only">Version {version || "unknown"}</span>
+					</>
+				}
 				testid="row-version"
 				hint={
 					<>
@@ -104,7 +109,7 @@ export function UpdateSettings({
 				))}
 			</SettingsRow>
 			{active && (
-				<SettingsRow label="Automatic updates" hint={AUTO_UPDATE_HINT} testid="row-auto-update">
+				<SettingsRow label="التحديثات التلقائية" hint={AUTO_UPDATE_HINT} testid="row-auto-update">
 					<Toggle checked={autoUpdate} label="auto update" onChange={onAutoUpdateChange} />
 				</SettingsRow>
 			)}

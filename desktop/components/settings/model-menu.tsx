@@ -81,6 +81,8 @@ export function ModelMenuList({
 				ref={searchRef}
 				data-testid="model-search"
 				value={query}
+				placeholder="بحث في النماذج…"
+				aria-label="Search models"
 				onChange={(e) => {
 					setQuery(e.target.value);
 					setMenuIdx(null); // new query → the walk restarts on Enter/↓
@@ -104,12 +106,19 @@ export function ModelMenuList({
 						}
 					}
 				}}
-				placeholder="Search models…"
 				className="lh-input mb-1.5 w-full rounded-lg border bg-background px-2 py-1.5 text-foreground outline-none focus:ring-1 focus:ring-ring"
 			/>
-			{!models && <div className="px-2 py-3 text-center text-muted-foreground">Loading models…</div>}
+			{!models && (
+				<div className="px-2 py-3 text-center text-muted-foreground">
+					<span>جارٍ تحميل النماذج…</span>
+					<span className="sr-only">Loading models…</span>
+				</div>
+			)}
 			{models && results.length === 0 && (
-				<div className="px-2 py-3 text-center text-muted-foreground">No models match.</div>
+				<div className="px-2 py-3 text-center text-muted-foreground">
+					<span>لا توجد نماذج مطابقة.</span>
+					<span className="sr-only">No models match.</span>
+				</div>
 			)}
 			<ul ref={listRef} data-testid="model-list" className="flex max-h-72 flex-col overflow-y-auto px-1">
 				{results.map((m, i) => (
@@ -144,6 +153,16 @@ export function ModelMenuList({
 	);
 }
 
+const THINKING_LEVEL_LABELS: Record<string, string> = {
+	off: "معطّل",
+	minimal: "أدنى",
+	low: "منخفض",
+	medium: "متوسط",
+	high: "مرتفع",
+	xhigh: "فائق",
+	max: "أقصى",
+};
+
 /** The thinking-level dropdown body — the levels this model actually
  *  supports, ✓ on the effective one. Same shape as the chat selector's. */
 export function ThinkingMenuList({
@@ -163,7 +182,7 @@ export function ThinkingMenuList({
 	return (
 		<>
 			{levels.length === 0 ? (
-				<div className="px-2 py-3 text-center text-muted-foreground">{empty ?? "No thinking levels."}</div>
+				<div className="px-2 py-3 text-center text-muted-foreground">{empty ?? "لا تتوفر مستويات تفكير."}</div>
 			) : (
 				levels.map((level) => (
 					<button
@@ -171,11 +190,14 @@ export function ThinkingMenuList({
 						type="button"
 						data-testid={`thinking-option-${level}`}
 						onClick={() => onPick(level)}
-						className={`flex items-center justify-between rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-muted ${
+						className={`flex items-center justify-between rounded-lg px-2 py-1.5 text-start transition-colors hover:bg-muted cursor-pointer ${
 							level === effectiveLevel ? "bg-muted/60 text-card-foreground" : "text-card-foreground"
 						}`}
 					>
-						<span>{level}</span>
+						<span className="flex items-center gap-1.5 font-ui">
+							<span>{THINKING_LEVEL_LABELS[level] ?? level}</span>
+							<span className="text-[10px] text-muted-foreground/60 font-mono">({level})</span>
+						</span>
 						{level === effectiveLevel && <span aria-hidden>✓</span>}
 					</button>
 				))
@@ -248,11 +270,12 @@ export function ProviderMenuList({
 						}
 					}
 				}}
-				placeholder="Search providers…"
+				placeholder="بحث في المزودين…"
+				aria-label="Search providers"
 				className="lh-input mb-1.5 w-full rounded-lg border bg-background px-2 py-1.5 text-foreground outline-none focus:ring-1 focus:ring-ring"
 			/>
 			{results.length === 0 && (
-				<div className="px-2 py-3 text-center text-muted-foreground">No providers match.</div>
+				<div className="px-2 py-3 text-center text-muted-foreground">لا يوجد مزود مطابق.</div>
 			)}
 			<ul ref={listRef} data-testid="provider-list" className="flex max-h-72 flex-col overflow-y-auto px-1">
 				{results.map((p, i) => (
@@ -262,7 +285,7 @@ export function ProviderMenuList({
 							data-testid={`provider-option-${p.id.replace(/[^a-z0-9-]/gi, "_")}`}
 							data-idx={i}
 							onClick={() => onPick(p)}
-							className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left outline-none transition-colors hover:bg-muted ${
+							className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-start outline-none transition-colors hover:bg-muted cursor-pointer ${
 								i === menuIdx ? "bg-accent/40 ring-1 ring-inset ring-border" : ""
 							}`}
 						>
@@ -378,10 +401,11 @@ export function FontMenuList({
 						}
 					}
 				}}
-				placeholder="Search fonts…"
+				placeholder="بحث في الخطوط…"
+				aria-label="Search fonts"
 				className="lh-input mb-1.5 w-full rounded-lg border bg-background px-2 py-1.5 text-foreground outline-none focus:ring-1 focus:ring-ring"
 			/>
-			{!families && <div className="px-2 py-3 text-center text-muted-foreground">Loading fonts…</div>}
+			{!families && <div className="px-2 py-3 text-center text-muted-foreground">جارٍ تحميل الخطوط…<span className="sr-only">Loading fonts…</span></div>}
 			<ul ref={listRef} data-testid="font-list" className="flex max-h-72 flex-col overflow-y-auto px-1">
 				{families &&
 					results.map((family, i) => {
@@ -394,12 +418,12 @@ export function FontMenuList({
 									data-testid={isDefault ? "font-option-default" : `font-option-${family.replace(/[^a-z0-9-]/gi, "_")}`}
 									data-idx={i}
 									onClick={() => onPick(family)}
-									className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left outline-none transition-colors hover:bg-muted ${
+									className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-start outline-none transition-colors hover:bg-muted cursor-pointer ${
 										i === menuIdx ? "bg-accent/40 ring-1 ring-inset ring-border" : ""
 									}${effective && i !== menuIdx ? " bg-muted/60" : ""}`}
 								>
 									<span className="truncate text-card-foreground">{family ?? "Source Sans 3"}</span>
-									<span className="shrink-0 text-muted-foreground">{isDefault ? "default" : effective && <span aria-hidden>✓</span>}</span>
+									<span className="shrink-0 text-muted-foreground">{isDefault ? "افتراضي" : effective && <span aria-hidden>✓</span>}</span>
 								</button>
 							</li>
 						);
@@ -411,12 +435,12 @@ export function FontMenuList({
 							data-testid="font-option-custom"
 							data-idx={0}
 							onClick={() => onPick(customFamily)}
-							className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left outline-none transition-colors hover:bg-muted ${
+							className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-start outline-none transition-colors hover:bg-muted cursor-pointer ${
 								menuIdx === 0 ? "bg-accent/40 ring-1 ring-inset ring-border" : ""
 							}`}
 						>
-							<span className="truncate text-card-foreground">Use “{customFamily}”</span>
-							<span className="shrink-0 text-muted-foreground">custom</span>
+							<span className="truncate text-card-foreground">استخدام «{customFamily}»</span>
+							<span className="shrink-0 text-muted-foreground">مخصص</span>
 						</button>
 					</li>
 				)}

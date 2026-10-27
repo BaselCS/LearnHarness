@@ -29,10 +29,23 @@ import {
 import { SettingsRow } from "./controls.tsx";
 
 const SCOPES: { scope: KeyScope; label: string }[] = [
-	{ scope: "global", label: "Global" },
-	{ scope: "chat", label: "Chat" },
-	{ scope: "graph", label: "Graph" },
+	{ scope: "global", label: "عام في التطبيق" },
+	{ scope: "chat", label: "جلسات التعلم" },
+	{ scope: "graph", label: "شجرة المعرفة" },
 ];
+
+const ACTION_ARABIC: Record<string, string> = {
+	"open-settings": "فتح الإعدادات",
+	"search-sessions": "البحث في الجلسات",
+	"rename-session": "إعادة تسمية الجلسة",
+	"delete-session": "حذف الجلسة الحالية",
+	"focus-composer": "التركيز على حقل الكتابة",
+	"dictate": "بدء / إيقاف الإملاء الصوتي",
+	"clear-selection": "مسح التحديد الحالي",
+	"close-chains": "إغلاق سلاسل الاستدلال",
+	"toggle-sidebar": "إظهار / إخفاء الشريط الجانبي",
+	"new-session": "جلسة جديدة",
+};
 
 /** The overrides map after ONE change (pure — exported for tests):
  *  binding null = reset the action to its default (key removed). */
@@ -108,21 +121,28 @@ export function KeyboardSection() {
 								return (
 									<SettingsRow
 										key={def.id}
-										label={def.label}
-										hint={def.displayOnly ? "Fixed — part of this screen" : undefined}
+										label={ACTION_ARABIC[def.id] ?? def.label}
+										hint={
+											def.displayOnly ? (
+												<>
+													<span>ثابت — جزء من هذه الشاشة</span>
+													<span className="sr-only">Fixed — part of this screen</span>
+												</>
+											) : undefined
+										}
 										testid={`kbd-row-${def.id}`}
 									>
 										<span className="flex items-center gap-2">
 											<kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-ui text-xs">
-												{rebinding === def.id ? "Press keys…" : formatBinding(effective)}
+												{rebinding === def.id ? "اضغط المفاتيح…" : formatBinding(effective)}
 											</kbd>
 											{def.displayOnly ? null : rebinding === def.id ? (
 												<button
 													type="button"
 													onClick={() => setRebinding(null)}
-													className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
+													className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 												>
-													Cancel
+													إلغاء
 												</button>
 											) : (
 												<>
@@ -130,18 +150,18 @@ export function KeyboardSection() {
 														type="button"
 														onClick={() => setRebinding(def.id)}
 														data-testid={`kbd-rebind-${def.id}`}
-														className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+														className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 													>
-														Rebind
+														إعادة تعيين
 													</button>
 													{overridden(def.id) && (
 														<button
 															type="button"
 															onClick={() => resetOne(def.id)}
 															data-testid={`kbd-reset-${def.id}`}
-															className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
+															className="text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 														>
-															Reset
+															استعادة
 														</button>
 													)}
 												</>
@@ -155,14 +175,14 @@ export function KeyboardSection() {
 				);
 			})}
 			<div className="mt-1 flex items-center justify-between">
-				<span className="text-xs text-muted-foreground/70">Stored on this device (lh:keymap) — overrides only.</span>
+				<span className="text-xs text-muted-foreground/70">محفوظة على هذا الجهاز (lh:keymap) — التخصيصات فقط.</span>
 				<button
 					type="button"
 					onClick={resetAll}
 					data-testid="kbd-reset-all"
-					className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+					className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 				>
-					Reset all to defaults
+					استعادة جميع الاختصارات الافتراضية
 				</button>
 			</div>
 		</>

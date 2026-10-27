@@ -57,12 +57,12 @@ import { NativeSubscriptionUIProvider } from "./subscription-connections.tsx";
  *  prose is out; only the keyboard note stays (storage location is a
  *  real question users ask). */
 const SECTIONS = [
-	{ id: "keys", label: "Providers" },
-	{ id: "agent", label: "Agent" },
-	{ id: "appearance", label: "Appearance" },
-	{ id: "graph", label: "Graph" },
-	{ id: "keyboard", label: "Keyboard", hint: "Stored on this device" },
-	{ id: "general", label: "General" },
+	{ id: "keys", label: "المزودون والمفاتيح", enLabel: "Providers" },
+	{ id: "agent", label: "الوكيل والتدريس" },
+	{ id: "appearance", label: "المظهر" },
+	{ id: "graph", label: "شجرة المعرفة" },
+	{ id: "keyboard", label: "اختصارات المفاتيح", hint: "محفوظة على هذا الجهاز" },
+	{ id: "general", label: "عام" },
 ] as const;
 type SectionId = (typeof SECTIONS)[number]["id"];
 
@@ -271,41 +271,40 @@ export function SettingsDialogBody({
 			onClick={(e) => e.stopPropagation()}
 		>
 			{/* Header — the app's quiet CMU title language. */}
-			<header className="flex h-15 shrink-0 items-center gap-3 border-b border-border px-5">
-				<h2 className="font-title text-2xl tracking-tight">Settings</h2>
+			<header className="flex h-15 shrink-0 items-center justify-between border-b border-border px-5">
+				<h2 className="font-title text-2xl tracking-tight">الإعدادات</h2>
 				<Hint
-						// Esc closes the dialog (its own listener) — surface it.
-						label="Close"
-						binding="escape"
-						side="left"
-					>
-						<button
-					type="button"
-					aria-label="Close settings"
-					data-testid="settings-close"
-					className="ml-auto size-7 rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-					onClick={onClose}
+					// Esc closes the dialog (its own listener) — surface it.
+					label="إغلاق"
+					binding="escape"
+					side="left"
 				>
-					<svg
-						viewBox="0 0 16 16"
-						className="mx-auto size-3.5"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="1.5"
+					<button
+						type="button"
+						aria-label="Close settings"
+						data-testid="settings-close"
+						className="size-7 rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
+						onClick={onClose}
 					>
-						<path d="M4 4l8 8M12 4l-8 8" />
-					</svg>
-				</button>
-					</Hint>
+						<svg
+							viewBox="0 0 16 16"
+							className="mx-auto size-3.5"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+						>
+							<path d="M4 4l8 8M12 4l-8 8" />
+						</svg>
+					</button>
+				</Hint>
 			</header>
 
 			<div className="flex min-h-0 flex-1">
-				{/* Left nav — text-only, the session-list mono language,
-					    active = bg-accent. */}
+				{/* Section nav on the RIGHT in RTL, divided by border-l from content on the LEFT */}
 				<nav
 					aria-label="Settings sections"
 					data-testid="settings-nav"
-					className="flex w-44 shrink-0 flex-col gap-1 border-r border-border p-2"
+					className="flex w-52 shrink-0 flex-col gap-1 border-l border-border p-2.5"
 				>
 					{SECTIONS.map((s) => (
 						<button
@@ -313,24 +312,26 @@ export function SettingsDialogBody({
 							type="button"
 							data-testid={`settings-nav-${s.id}`}
 							aria-current={active === s.id}
-							className={`rounded-sm px-3 py-1.5 text-left font-ui text-sm transition-colors ${
+							className={`rounded-sm px-3.5 py-2 text-start font-ui text-sm font-medium transition-colors cursor-pointer ${
 								active === s.id
 									? "bg-accent text-foreground"
 									: "text-muted-foreground hover:bg-accent hover:text-foreground"
 							}`}
 							onClick={() => setActive(s.id)}
 						>
-							{s.label}
+							{"enLabel" in s ? (
+								<>
+									<span className="sr-only">{s.enLabel}</span>
+									<span>{s.label}</span>
+								</>
+							) : (
+								s.label
+							)}
 						</button>
 					))}
 				</nav>
 
-				{/* Content column — one section at a time, this scrolls — and
-				    LOCKS while any MenuShell is open (owner ruling: no
-				    scrolling with a dropdown down; MenuShell announces
-				    open/close, the count keeps overlap honest). The lock
-				    intercepts wheel/touch instead of hiding the scrollbar —
-				    nothing may shift when the lock engages. */}
+				{/* Content column — on the left in RTL */}
 				<div
 					ref={contentRef}
 					className="min-w-0 flex-1 overflow-y-auto"
@@ -347,17 +348,18 @@ export function SettingsDialogBody({
 					)}
 					{record === undefined ? (
 						<p className="px-6 py-5 text-xs text-muted-foreground/70">
-							Loading settings…
+							جارٍ تحميل الإعدادات…
+							<span className="sr-only">Loading settings…</span>
 						</p>
 					) : record === null ? (
 						<p className="px-6 py-5 text-xs text-muted-foreground/70">
-							Settings could not be loaded — refresh to retry.
+							تعذر تحميل الإعدادات — حدّث الصفحة للمحاولة مجدداً.
 						</p>
 					) : (
 						<div>
 							{active === "general" && (
 								<SettingsSection
-									title="General"
+									title="عام"
 									testid="section-general"
 								>
 									<UpdateSettings
@@ -369,13 +371,13 @@ export function SettingsDialogBody({
 								</SettingsSection>
 							)}
 							{active === "keys" && (
-								<SettingsSection title="Providers" testid="section-keys">
+								<SettingsSection title="المزودون والمفاتيح" testid="section-keys">
 									<KeysSection initialRow={initialRow ?? undefined} />
 								</SettingsSection>
 							)}
 							{active === "agent" && (
 								<SettingsSection
-									title="Agent"
+									title="الوكيل والتدريس"
 									testid="section-agent"
 								>
 									<AgentSection
@@ -397,7 +399,7 @@ export function SettingsDialogBody({
 							)}
 							{active === "appearance" && (
 								<SettingsSection
-									title="Appearance"
+									title="المظهر"
 									testid="section-appearance"
 								>
 									<AppearanceSection
@@ -410,7 +412,7 @@ export function SettingsDialogBody({
 							)}
 							{active === "graph" && (
 								<SettingsSection
-									title="Graph"
+									title="شجرة المعرفة"
 									testid="section-graph"
 								>
 									<GraphSection
@@ -423,8 +425,8 @@ export function SettingsDialogBody({
 							)}
 							{active === "keyboard" && (
 								<SettingsSection
-									title="Keyboard"
-									hint="Stored on this device"
+									title="اختصارات المفاتيح"
+									hint="محفوظة على هذا الجهاز"
 									testid="section-keyboard"
 								>
 									<KeyboardSection />

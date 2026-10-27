@@ -164,32 +164,33 @@ export function MinimalHome({
 			    window instead. Node search and the render-settings gear are
 			    canvas things and stay gone; Import ALWAYS renders (the
 			    entry law). */}
-			<div className="lh-no-drag lh-wco-floating absolute right-2 top-2 z-10 flex max-w-[calc(100%-5.5rem)] flex-col items-end gap-2">
+			<div className="lh-no-drag lh-wco-floating absolute ltr:right-2 rtl:left-24 rtl:start-auto top-2 z-10 flex max-w-[calc(100%-12rem)] flex-col ltr:items-end rtl:items-start gap-2">
 				<div className="flex min-w-0 items-start gap-2">
 					<div className="graph-chrome-fade-in shrink-0 rounded-xl border bg-card/85 px-1 py-[3px] shadow-lg backdrop-blur">
-						<Hint label="Every reasoning chain" side="bottom">
+						<Hint label="جميع سلاسل الاستدلال" side="bottom">
 							<button
 								type="button"
 								onClick={() => setChainsOpen(true)}
 								data-testid="open-chain-table"
-								className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent"
+								className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent cursor-pointer"
 							>
 								<ListTreeIcon className="size-3" />
-								Chains
+								سلاسل الاستدلال
 							</button>
 						</Hint>
 					</div>
 					<div className="shrink-0 rounded-xl border bg-card/85 px-1 py-[3px] shadow-lg backdrop-blur">
-						<Hint label="Import notes into the graph" side="bottom">
+						<Hint label="استيراد ملاحظات إلى شجرة المعرفة" side="bottom">
 							<button
 								type="button"
 								disabled={importing}
 								onClick={() => fileInputRef.current?.click()}
 								data-testid="import-notes"
-								className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent disabled:opacity-50"
+								className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent disabled:opacity-50 cursor-pointer"
 							>
 								<UploadIcon className="size-3" />
-								{importing ? "Importing…" : "Import notes…"}
+								{importing ? "جاري الاستيراد…" : "استيراد الملاحظات…"}
+								<span className="sr-only">Import notes…</span>
 							</button>
 						</Hint>
 					</div>

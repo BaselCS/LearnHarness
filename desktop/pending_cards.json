@@ -1,0 +1,15 @@
+[
+  {
+    "id": "test_cloze_linalg",
+    "deckName": "LearnHarness::AI",
+    "modelName": "Cloze",
+    "fields": {
+      "Text": "In linear algebra, a matrix {{c1::determinant}} equal to 0 means the transformation collapses volume to zero.",
+      "Extra": "No inverse matrix exists when det(A) = 0."
+    },
+    "tags": [
+      "linear-algebra",
+      "ultralearning"
+    ]
+  }
+]

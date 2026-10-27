@@ -1239,7 +1239,7 @@ export function Chat({
 								onBlur={() => void commitRename(titleDraft)}
 								spellCheck={false}
 								aria-label="Session title"
-								title="Rename this session"
+								title="إعادة تسمية هذه الجلسة"
 								className="lh-no-drag min-w-[8ch] max-w-[70%] shrink-0 bg-transparent font-title text-3xl tracking-tight caret-current outline-none [field-sizing:content]"
 							/>
 							{/* flex-1 spacer during rename too, so the chips stay at
@@ -1251,19 +1251,19 @@ export function Chat({
 					<>
 						<Hint
 							// F2 renames (registry) — surfaced on the hover.
-							label="Rename session"
+							label="إعادة تسمية الجلسة"
 							action="rename-session"
 							side="bottom"
 						>
-<button
-							type="button"
-														onClick={() => {
-								setTitleDraft(titleText);
-								setRenaming(true);
-							}}
-							className="lh-no-drag -mx-1.5 min-w-4 shrink cursor-text truncate rounded-md px-1.5 text-left font-title text-3xl tracking-tight transition-colors hover:bg-accent"
-						>
-							{titleText}
+							<button
+								type="button"
+								onClick={() => {
+									setTitleDraft(titleText);
+									setRenaming(true);
+								}}
+								className="lh-no-drag -mx-1.5 min-w-4 shrink cursor-text truncate rounded-md px-1.5 text-start font-title text-3xl tracking-tight transition-colors hover:bg-accent"
+							>
+								{titleText}
 							</button>
 						</Hint>
 							{/* flex-1 spacer: keeps the chips at the right edge AND stays a
@@ -1275,7 +1275,7 @@ export function Chat({
 					    structure beside the phase chip — access to the full-DAG popup
 					    at every width; the marginalia is the wide-screen glance view. */}
 					{planTree && (
-						<Hint label="Open the full plan" side="bottom">
+						<Hint label="فتح الخطة الكاملة" side="bottom">
 <button
 							type="button"
 							data-testid="plan-chip"
@@ -1286,7 +1286,7 @@ export function Chat({
 							className="lh-no-drag flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-border/80 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:border-border hover:text-foreground"
 						>
 							<WaypointsIcon className="size-3.5 text-primary" aria-hidden />
-							Plan
+							الخطة
 						</button>
 </Hint>
 					)}
@@ -1308,7 +1308,7 @@ export function Chat({
 							className="pointer-events-none flex shrink-0 select-none items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground"
 						>
 							<DumbbellIcon className="size-3" />
-							Practice
+							ممارسة
 						</span>
 					) : (
 						<PhaseChip phase={phases.at(-1) ?? "probe"} />
@@ -1323,8 +1323,8 @@ export function Chat({
 						<div data-session-find-root="" className={`${COLUMN} flex flex-1 flex-col gap-4 pt-4`}>
 							{messages.length === 0 && !busy && (
 								<ConversationEmptyState
-									title="New session"
-									description="The teacher will open by probing what you already know."
+									title="جلسة جديدة"
+									description="سيبدأ المعلم بتشخيص ما تعرفه مسبقاً لتحديد نقطة الانطلاق."
 								/>
 							)}
 
@@ -1654,7 +1654,7 @@ export function Chat({
 							// applies.
 							nextProblem={nextReady}
 							onNext={sendNext}
-							placeholder={nextReady ? "Ask anything, or press Enter for the next one." : undefined}
+							placeholder={nextReady ? "اسأل عن أي شيء، أو اضغط Enter للمتابعة." : undefined}
 						/>
 					}
 					onSubmitAnswer={(output) => {

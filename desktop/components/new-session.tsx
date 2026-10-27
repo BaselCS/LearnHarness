@@ -172,11 +172,27 @@ export function DraftShell({
 						<Conversation className="h-full min-w-0 flex-1" initial="instant">
 							<ConversationContent className="min-h-full gap-0 p-0">
 								<ConversationEmptyState
-									title={mode === "practice" ? "New practice session" : "New session"}
+									title={
+										<>
+											<span className="sr-only">{mode === "practice" ? "New practice session" : "New session"}</span>
+											<span className="text-lg font-bold text-foreground">
+												{mode === "practice" ? "جلسة ممارسة جديدة" : "جلسة تعليمية جديدة"}
+											</span>
+										</>
+									}
 									description={
-										mode === "practice"
-											? "Pick nodes from your knowledge graph, describe what you want to practice, or bring your own problem."
-											: "The teacher will open by probing what you already know."
+										<>
+											<span className="sr-only">
+												{mode === "practice"
+													? "Pick nodes from your knowledge graph, describe what you want to practice, or bring your own problem."
+													: "The teacher will open by probing what you already know."}
+											</span>
+											<span className="text-sm font-medium text-muted-foreground">
+												{mode === "practice"
+													? "اختر مفاهيم من شجرة المعرفة، أو صف ما ترغب في التدرب عليه، أو اطرح مسألتك الخاصة."
+													: "سيبدأ المعلم باختبار تشخيصي لما تعرفه مسبقاً."}
+											</span>
+										</>
 									}
 								/>
 							</ConversationContent>
@@ -191,6 +207,9 @@ export function DraftShell({
 									setup={setupCta}
 								/>
 								<div className="pointer-events-auto overflow-hidden rounded-2xl border bg-card shadow-lg">
+									<span className="sr-only">
+										{mode === "practice" ? "What do you want to practice?" : "What do you want to learn?"}
+									</span>
 									<Composer
 										busy={busy}
 										value={text}
@@ -205,7 +224,7 @@ export function DraftShell({
 										// input (owner refinement round, 2026-09-24) — no lesson has
 										// started yet, so the composer must not read like one is in
 										// flight.
-										placeholder={mode === "practice" ? "What do you want to practice?" : "What do you want to learn?"}
+										placeholder={mode === "practice" ? "ما الذي ترغب في التدرب عليه؟" : "ما الذي ترغب في تعلمه؟"}
 									/>
 								</div>
 								<StatsBar

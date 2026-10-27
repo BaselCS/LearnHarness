@@ -119,9 +119,9 @@
 	   SYSTEM stacks — a fourth font the app never chose — and streamdown's
 	   code-block chrome + mermaid-error + demo-card all use them. */
 	--font-ui: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-	--font-prose: var(--font-sans3), ui-sans-serif, system-ui, sans-serif;
+	--font-prose: var(--font-sans3), "Noto Sans Arabic", "Tajawal", "Cairo", ui-sans-serif, system-ui, sans-serif;
 	--font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-	--font-sans: var(--font-sans3), ui-sans-serif, system-ui, sans-serif;
+	--font-sans: var(--font-sans3), "Noto Sans Arabic", "Tajawal", "Cairo", ui-sans-serif, system-ui, sans-serif;
 	/* The modular type ladder — each size carries its own line-height.
 	   Component sizes must pull from this ladder. (owner, typography
 	   round 4: the 10px rung is merged into 11 — one pixel apart was a
@@ -192,6 +192,41 @@ body {
 	font-family: var(--font-prose);
 	font-size: var(--lh-prose-size);
 	line-height: var(--lh-prose-leading);
+	unicode-bidi: plaintext;
+	text-align: start;
+}
+
+/* BiDi / RTL auto-detection for Arabic mixed with English */
+[dir="auto"], .lh-prose, [data-streamdown] {
+	text-align: start;
+}
+
+.lh-prose :is(p, div, li, h1, h2, h3, h4, h5, h6) {
+	unicode-bidi: plaintext;
+	text-align: start;
+}
+
+.lh-prose :is(code, strong, em, a) {
+	unicode-bidi: isolate;
+}
+
+/* Mermaid SVG RTL & BiDi styling for Arabic */
+[data-streamdown="mermaid"] svg, .mermaid svg {
+	direction: rtl;
+}
+[data-streamdown="mermaid"] svg text,
+[data-streamdown="mermaid"] svg .nodeLabel,
+[data-streamdown="mermaid"] svg .label,
+[data-streamdown="mermaid"] svg foreignObject div,
+[data-streamdown="mermaid"] svg foreignObject span,
+.mermaid svg .nodeLabel {
+	direction: rtl !important;
+	unicode-bidi: plaintext !important;
+	text-align: center !important;
+}
+[data-streamdown="mermaid"] svg .nodeLabel span:not([class*="node"]),
+[data-streamdown="mermaid"] svg .nodeLabel code {
+	unicode-bidi: isolate !important;
 }
 
 /* Session-name weight (owner, fix wave round 3): with the serif toggle
@@ -548,12 +583,217 @@ body {
 .lh-electron:is([data-lh-platform="win32"], [data-lh-platform="linux"]) {
 	--lh-wco-right: max(0px, calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw)));
 }
+.lh-wco-gutter {
+	padding-right: max(7.5rem, calc(0.75rem + var(--lh-wco-right, 0px)));
+}
 .lh-electron .lh-wco-gutter {
-	padding-right: calc(0.75rem + var(--lh-wco-right, 0px));
+	padding-right: max(7.5rem, calc(0.75rem + var(--lh-wco-right, 0px)));
 }
 .lh-electron .lh-wco-floating {
 	right: calc(0.5rem + var(--lh-wco-right, 0px));
 	max-width: max(0px, calc(100% - 5.5rem - var(--lh-wco-right, 0px)));
+}
+
+/* RTL Window Controls & Floating layout (RTL overhaul):
+   In RTL, the close button / traffic lights sit at the FAR LEFT,
+   the sidebar toggle sits at the FAR RIGHT. Floating controls
+   must align to the left side with a gutter for the close button,
+   leaving the right side completely clear for the sidebar toggle. */
+[dir="rtl"] .lh-wco-gutter,
+[dir="rtl"].lh-electron .lh-wco-gutter,
+[dir="rtl"] .lh-electron .lh-wco-gutter {
+	padding-right: 0.75rem;
+	padding-left: max(7.5rem, calc(0.75rem + var(--lh-wco-right, 0px)));
+}
+[dir="rtl"] .lh-electron .lh-wco-floating,
+[dir="rtl"] .lh-wco-floating {
+	right: auto;
+	left: max(6.5rem, calc(0.5rem + var(--lh-wco-right, 0px)));
+	max-width: max(0px, calc(100% - 11rem - var(--lh-wco-right, 0px)));
+	align-items: flex-start;
+}
+
+/* RTL Localization Overrides */
+[dir="rtl"] [data-testid="settings-nav-keys"] {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="settings-nav-keys"]::after {
+	content: "المزودون والمفاتيح";
+	font-size: 0.875rem;
+}
+
+[dir="rtl"] .lh-connect-btn {
+	font-size: 0 !important;
+}
+[dir="rtl"] .lh-connect-btn::after {
+	content: "ربط";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+[dir="rtl"] .lh-manage-btn {
+	font-size: 0 !important;
+}
+[dir="rtl"] .lh-manage-btn::after {
+	content: "إدارة…";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+[dir="rtl"] .lh-node-picker-chip {
+	font-size: 0 !important;
+}
+[dir="rtl"] .lh-node-picker-chip[data-empty="true"]::after {
+	content: "اختيار مفاهيم";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+[dir="rtl"] .lh-node-picker-chip[data-empty="false"]::after {
+	content: attr(data-ar-label);
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+[dir="rtl"] .lh-node-picker-clear {
+	font-size: 0 !important;
+}
+[dir="rtl"] .lh-node-picker-clear::after {
+	content: "مسح";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+[dir="rtl"] [data-testid="graph-row-enabled"] > span:first-child > span:first-child {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="graph-row-enabled"] > span:first-child > span:first-child::after {
+	content: "استخراج المفاهيم";
+	font-size: var(--lh-prose-size, 1rem);
+	font-weight: 500;
+}
+
+[dir="rtl"] [data-testid="graph-row-rendering"] > span:first-child > span:first-child {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="graph-row-rendering"] > span:first-child > span:first-child::after {
+	content: "عرض شجرة المعرفة";
+	font-size: var(--lh-prose-size, 1rem);
+	font-weight: 500;
+}
+
+[dir="rtl"] [data-testid="group-provider-keys"] > div:first-child,
+[dir="rtl"] [data-testid="group-provider-keys"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-provider-keys"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-provider-keys"] > p::after {
+	content: "مفاتيح واجهات النماذج";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="group-subscriptions"] > div:first-child,
+[dir="rtl"] [data-testid="group-subscriptions"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-subscriptions"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-subscriptions"] > p::after {
+	content: "الاشتراكات المباشرة";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="group-dictation"] > div:first-child,
+[dir="rtl"] [data-testid="group-dictation"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-dictation"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-dictation"] > p::after {
+	content: "الإملاء الصوتي";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="group-search"] > div:first-child,
+[dir="rtl"] [data-testid="group-search"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-search"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-search"] > p::after {
+	content: "محركات البحث";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="group-models"] > div:first-child,
+[dir="rtl"] [data-testid="group-models"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-models"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-models"] > p::after {
+	content: "النماذج";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="group-tools"] > div:first-child,
+[dir="rtl"] [data-testid="group-tools"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-tools"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-tools"] > p::after {
+	content: "الأدوات";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="group-context"] > div:first-child,
+[dir="rtl"] [data-testid="group-context"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-context"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-context"] > p::after {
+	content: "السياق والذاكرة";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="group-prompts"] > div:first-child,
+[dir="rtl"] [data-testid="group-prompts"] > p {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="group-prompts"] > div:first-child::after,
+[dir="rtl"] [data-testid="group-prompts"] > p::after {
+	content: "تعليمات النظام والوكلاء";
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+[dir="rtl"] [data-testid="update-check"] {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="update-check"]::after {
+	content: "التحقق من وجود تحديثات";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+[dir="rtl"] [data-testid="update-restart"] {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="update-restart"]::after {
+	content: "إعادة التشغيل";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+[dir="rtl"] [data-testid="release-notes"] {
+	font-size: 0 !important;
+}
+[dir="rtl"] [data-testid="release-notes"]::after {
+	content: "ملاحظات الإصدار ↗";
+	font-size: 0.875rem;
+	font-weight: 500;
 }
 
 /* --font-title deliberately NOT @theme inline (see comment above): the

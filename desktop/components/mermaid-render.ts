@@ -24,10 +24,23 @@ export const MERMAID_FONT_SIZE = 16;
 // mermaid's dark theme. (Moved from ai-elements/message.tsx when the
 // renderer became app-owned; the old `mermaid` prop wiring is retired.)
 export const mermaidTheme: MermaidConfig = {
-	fontFamily: "ui-sans-serif, system-ui, sans-serif",
+	fontFamily: "var(--font-sans3), 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif",
 	fontSize: MERMAID_FONT_SIZE,
 	securityLevel: "strict",
 	theme: "dark",
+	flowchart: {
+		htmlLabels: true,
+	},
+	themeCSS: `
+		.nodeLabel, .label, .edgeLabel, text {
+			direction: rtl;
+			unicode-bidi: plaintext;
+			text-align: center;
+		}
+		.nodeLabel span, .nodeLabel code {
+			unicode-bidi: isolate;
+		}
+	`,
 };
 
 const plugin = createMermaidPlugin();
