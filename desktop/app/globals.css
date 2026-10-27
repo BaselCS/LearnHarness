@@ -622,6 +622,20 @@ body {
 	font-size: 0.875rem;
 }
 
+[dir="rtl"] .lh-extract-btn {
+	font-size: 0 !important;
+}
+[dir="rtl"] .lh-extract-btn[data-state="running"]::after {
+	content: "قيد التشغيل…";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+[dir="rtl"] .lh-extract-btn[data-state="idle"]::after {
+	content: "استخراج المفاهيم";
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
 [dir="rtl"] .lh-connect-btn {
 	font-size: 0 !important;
 }

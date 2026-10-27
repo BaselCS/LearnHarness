@@ -215,19 +215,10 @@ export function CoverageMenuBody({
 				data-testid="ctx-extract"
 				onClick={onExtract}
 				disabled={busy || complete}
-				className="flex items-center justify-center rounded-lg border px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer"
+				data-state={busy ? "running" : "idle"}
+				className="lh-extract-btn flex items-center justify-center rounded-lg border px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer"
 			>
-				{busy ? (
-					<>
-						<span className="sr-only">Running</span>
-						<span aria-hidden="true">قيد التشغيل</span>
-					</>
-				) : (
-					<>
-						<span className="sr-only">Extract</span>
-						<span aria-hidden="true">استخراج المفاهيم</span>
-					</>
-				)}
+				{busy ? "Running" : "Extract"}
 			</button>
 		</div>
 	);
