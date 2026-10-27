@@ -317,7 +317,7 @@ export function CoverageRing({ chatId, refreshKey = 0 }: { chatId: string; refre
 		<div ref={rootRef} className="lh-no-drag relative shrink-0">
 			<Hint
 				// Trimmed (owner, subtlety round 2026-09-25).
-				label="How much of this session isn't mapped yet"
+				label="نسبة الجلسة غير المستخرجة في شجرة المعرفة"
 				side="bottom"
 			>
 				<button
@@ -335,7 +335,7 @@ export function CoverageRing({ chatId, refreshKey = 0 }: { chatId: string; refre
 			{open && (
 				<div
 					data-testid="coverage-ring-popover"
-					className="absolute top-full right-0 z-40 mt-1.5 w-64 rounded-xl border bg-card p-3 text-xs shadow-xl"
+					className="absolute top-full ltr:right-0 rtl:left-0 z-40 mt-1.5 w-72 rounded-xl border bg-card p-3.5 text-xs shadow-xl"
 				>
 					<CoverageRingDetail coverage={coverage} chunkTokens={graph.chunkTokens} />
 				</div>
@@ -377,44 +377,70 @@ export function CoverageRingGlyph({ fill, running }: { fill: number; running: bo
 export function CoverageRingDetail({ coverage, chunkTokens }: { coverage: SessionCoverage; chunkTokens: number }) {
 	return (
 		<>
-			<div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-				Extraction coverage
+			<div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+				<span className="sr-only">Extraction coverage</span>
+				<span aria-hidden="true">نسبة استخراج المفاهيم</span>
 			</div>
-			<div className="flex flex-col gap-1 text-muted-foreground">
+			<div className="flex flex-col gap-1.5 text-muted-foreground">
 				<div className="flex justify-between gap-2">
-					<span>Uncovered</span>
+					<span>
+						<span className="sr-only">Uncovered</span>
+						<span aria-hidden="true">غير مستخرج</span>
+					</span>
 					<span className="tabular-nums text-card-foreground">
-						{formatTokens(coverage.uncoveredTokens)} tokens
+						<span className="sr-only">{formatTokens(coverage.uncoveredTokens)} tokens</span>
+						<span aria-hidden="true">{formatTokens(coverage.uncoveredTokens)} رمز (Tokens)</span>
 					</span>
 				</div>
 				<div className="flex justify-between gap-2">
-					<span>Covered</span>
+					<span>
+						<span className="sr-only">Covered</span>
+						<span aria-hidden="true">مستخرج</span>
+					</span>
 					<span className="tabular-nums text-card-foreground">
-						{formatTokens(coverage.coveredTokens)} tokens
+						<span className="sr-only">{formatTokens(coverage.coveredTokens)} tokens</span>
+						<span aria-hidden="true">{formatTokens(coverage.coveredTokens)} رمز (Tokens)</span>
 					</span>
 				</div>
 				<div className="flex justify-between gap-2">
-					<span>Messages</span>
+					<span>
+						<span className="sr-only">Messages</span>
+						<span aria-hidden="true">الرسائل</span>
+					</span>
 					<span className="tabular-nums text-card-foreground">
 						{coverage.coveredCount} / {coverage.totalMessages}
 					</span>
 				</div>
 				<div className="flex justify-between gap-2">
-					<span>Chunk threshold</span>
+					<span>
+						<span className="sr-only">Chunk threshold</span>
+						<span aria-hidden="true">عتبة التجميع</span>
+					</span>
 					<span className="tabular-nums text-card-foreground">
-						{formatTokens(chunkTokens)} tokens
+						<span className="sr-only">{formatTokens(chunkTokens)} tokens</span>
+						<span aria-hidden="true">{formatTokens(chunkTokens)} رمز (Tokens)</span>
 					</span>
 				</div>
 				<div className="flex justify-between gap-2">
-					<span>Last extraction</span>
+					<span>
+						<span className="sr-only">Last extraction</span>
+						<span aria-hidden="true">آخر استخراج</span>
+					</span>
 					<span className="tabular-nums text-card-foreground">
-						{coverage.lastFoldedAt ? timeAgo(coverage.lastFoldedAt) : "—"}
+						<span className="sr-only">{coverage.lastFoldedAt ? timeAgo(coverage.lastFoldedAt) : "—"}</span>
+						<span aria-hidden="true">{coverage.lastFoldedAt ? formatTimeAgoAr(coverage.lastFoldedAt) : "—"}</span>
 					</span>
 				</div>
 				{coverage.running && (
 					<div className="flex justify-between gap-2" data-testid="coverage-ring-running">
-						<span>Status</span>
-						<span className="text-card-foreground">extracting…</span>
+						<span>
+							<span className="sr-only">Status</span>
+							<span aria-hidden="true">الحالة</span>
+						</span>
+						<span className="text-card-foreground">
+							<span className="sr-only">extracting…</span>
+							<span aria-hidden="true">جاري الاستخراج…</span>
+						</span>
 					</div>
 				)}
 			</div>
