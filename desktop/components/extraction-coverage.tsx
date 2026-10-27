@@ -190,17 +190,23 @@ export function CoverageMenuBody({
 			{busy ? (
 				<span className="flex items-center gap-1.5 text-muted-foreground" data-testid="ctx-coverage-running">
 					<span className="size-1.5 animate-pulse rounded-full bg-foreground/70" aria-hidden />
-					extracting…
+					<span className="sr-only">extracting…</span>
+					<span aria-hidden="true">جاري الاستخراج…</span>
 				</span>
 			) : complete ? (
-				<span className="text-muted-foreground">fully extracted</span>
+				<span className="text-muted-foreground">
+					<span className="sr-only">fully extracted</span>
+					<span aria-hidden="true">مستخرج بالكامل</span>
+				</span>
 			) : (
 				<span className="flex flex-col">
 					<span className="tabular-nums text-foreground">
-						{formatTokens(coverage.uncoveredTokens)} tok uncovered
+						<span className="sr-only">{formatTokens(coverage.uncoveredTokens)} tok uncovered</span>
+						<span aria-hidden="true">{formatTokens(coverage.uncoveredTokens)} رمز غير مستخرج</span>
 					</span>
 					<span className="tabular-nums text-muted-foreground">
-						{coverage.uncoveredCount} message{coverage.uncoveredCount === 1 ? "" : "s"} unextracted
+						<span className="sr-only">{coverage.uncoveredCount} message{coverage.uncoveredCount === 1 ? "" : "s"} unextracted</span>
+						<span aria-hidden="true">{coverage.uncoveredCount} رسائل غير مستخرجة</span>
 					</span>
 				</span>
 			)}
@@ -209,9 +215,19 @@ export function CoverageMenuBody({
 				data-testid="ctx-extract"
 				onClick={onExtract}
 				disabled={busy || complete}
-				className="flex items-center justify-center rounded-lg border px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
+				className="flex items-center justify-center rounded-lg border px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer"
 			>
-				{busy ? "Running" : "Extract"}
+				{busy ? (
+					<>
+						<span className="sr-only">Running</span>
+						<span aria-hidden="true">قيد التشغيل</span>
+					</>
+				) : (
+					<>
+						<span className="sr-only">Extract</span>
+						<span aria-hidden="true">استخراج المفاهيم</span>
+					</>
+				)}
 			</button>
 		</div>
 	);
