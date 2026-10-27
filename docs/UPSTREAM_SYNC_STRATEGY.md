@@ -1,94 +1,63 @@
-# دليل تحديث وتزامن LearnHarness مع المصدر الأصلي (Upstream) بدون كسر التعديلات
+# دليل تحديث وتزامن LearnHarness مع المصدر الأصلي (Upstream) بدون فقدان التعديلات
 
-هذا الدليل يوضح الطريقة القياسية للحفاظ على تعديلاتك (التعريب، البرومبت، السلاسل غير المتصلة Unconnected Chains، والتطويرات الخاصة) عند قيام المطور الأصلي (Maintainer) بتحديث التطبيق.
-
----
-
-## 1. الفصل المعماري للتعديلات (Architecture Separation)
-
-أفضل حماية ضد التعارضات هي عدم لمس ملفات المصدر عند توفر بديل رسمي داخل الكود:
-
-### أ) البرومبت والنظام (System Prompts)
-- **لا تعدل مباشرة** في `desktop/src/agent/system-prompt.md`.
-- **البديل الرسمي المدمج**: الناظم يدعم خاصية `PROMPTS_OVERRIDE_DIR` في مسار `desktop/data/prompts/`.
-- انسخ أي جزء ترغب بتعديله إلى مجلد `data/prompts/` بنفس الهيكلية (مثل `data/prompts/system-prompt.md` أو `data/prompts/teacher/...`).
-- عند تحديث المطور لملفات الكود، ملفاتك في `data/prompts/` تبقى معزولة وتأخذ الأولوية تلقائياً دون أي تعارض برمجي.
-
-### ب) السلاسل والبيانات وشبكة المعرفة (Chains & Graph Data)
-- بيانات السلاسل (`chains.jsonl`، `nodes.jsonl`) والإعدادات موجودة في `desktop/data/` (أو المسار المحدد بـ `LH_DATA_DIR`).
-- هذا المجلد معزول بطبيعته عن الكود المصدري ولن يمسّه أي تحديث من المطور.
-
-### ج) التعريب والواجهة (Localization / Translation)
-- لتفادي تعارض دمج الأكواد (Merge Conflicts) داخل ملفات الـ React/TSX:
-  1. يُفضل عزل نصوص الواجهة في ملف قاموس وسيط (مثل `locales/ar.json` أو ثوابت نصوص).
-  2. أو الاعتماد على دمج Git ثلاثي الأطراف (3-way merge) كما هو مشروح أدناه.
+تم ربط المستودع بنجاح مع حساب GitHub الخاص بك:
+- **المستودع الخاص بك (Origin):** `https://github.com/BaselCS/LearnHarness`
+- **المصدر الأصلي (Upstream):** `https://github.com/amosblomqvist/learnharness`
 
 ---
 
-## 2. المسار الأساسي: إدارة التحديث عبر Git (Upstream Branching Strategy)
+## 1. المعمارية المعتمدة: Git Subtree
 
-هذه الطريقة الأضمن والأسهل للمشاريع مفتوحة المصدر:
-
-### الخطوة 1: تهيئة المستودع وربطه بالأصل
-```bash
-cd /home/basel/Work/LearnHarness
-git init
-git remote add upstream https://github.com/amosblomqvist/learnharness.git
-git fetch upstream
-```
-
-### الخطوة 2: إنشاء فرع التعديلات المخصصة
-```bash
-# إنشاء فرع خاص بتعديلاتك معتمداً على آخر نسخة مستقرة من المطور
-git checkout -b custom-ar upstream/main
-
-# أضف ملفاتك وتعديلاتك
-git add .
-git commit -m "feat: add arabic localization, anki bridge, and custom prompts"
-```
-
-### الخطوة 3: التحديث عند إصدار المطور لنسخة جديدة
-عندما يطلق المطور تحديثاً جديداً:
-```bash
-# 1. جلب التحديثات الجديدة من المطور
-git fetch upstream
-
-# 2. التأكد من أنك على فرع تعديلاتك
-git checkout custom-ar
-
-# 3. دمج التحديثات
-git merge upstream/main
-```
-
-- **في حالة عدم وجود تعارض في نفس الأسطر**: سينتهي الدمج تلقائياً وبنجاح.
-- **في حالة وجود تعارض (Conflict)**: يقوم Git بتحديد الأسطر المتعارضة بوضوح (`<<<<<<< HEAD`)، فتقوم بحفظ تعديلك وحذف العلامات ثم:
-  ```bash
-  git add .
-  git commit -m "chore: merge upstream updates into custom-ar"
-  ```
+تم عزل كود تطبيق LearnHarness داخل المجلد `desktop/` وربطه بالمستودع الأصلي باستخدام معمارية **Git Subtree**:
+- مجلد `desktop/` يتتبع شجرة الكود الأصلية مباشرة من `upstream/main`.
+- التعديلات المخصصة (التعريب العربي، دمج أنكي `anki.ts`، الأدوات المضافة، ملفات التوثيق وسكربتات بايثون في الجذر) محفوظة ومحمية عبر سجل التعديلات المدمج (3-Way Merge).
 
 ---
 
-## 3. المسار الاحتياطي: نظام رقع التعديلات (Git Patch Workflow)
+## 2. كيفية استلام التحديثات الجديدة بسهولة
 
-إذا كنت لا تريد إدارة فروع Git معقدة، يمكنك استخراج كل تعديلاتك كملف "رقعة" (Patch):
+عند صدور أي تحديث أو ميزة جديدة من المطور الأصلي، يمكنك جلبها ودمجها بضغطة زر واحدة:
 
-### استخراج تعديلاتك كملف Patch:
+### الطريقة السريعة (الموصى بها):
+شغّل السكربت التلقائي في جذر المشروع:
 ```bash
-git diff upstream/main > my_customizations.patch
+./sync_upstream.sh
 ```
 
-### عند قدوم تحديث جديد:
-1. سحب كود المطور الجديد بالكامل.
-2. تطبيق رقعتك بضغطة زر:
+### الطريقة اليدوية:
 ```bash
-git apply --reject --whitespace=fix my_customizations.patch
+# 1. جلب التحديثات من المطور
+git fetch upstream main
+
+# 2. دمج التحديثات داخل مجلد desktop/ مع الحفاظ على تعديلاتك
+git subtree pull --prefix=desktop upstream main --squash -m "chore: sync updates from upstream main"
+
+# 3. رفع النتيجة لمستودعك على GitHub
+git push origin main
 ```
-- إذا واجه تعديل ما مشكلة في سطر معين، يولد Git ملف `.rej` يوضح مكان التعديل بدقة لتركيبه يدوياً دون أن تفقد بقية التعديلات.
 
 ---
 
-## ملخص سريع للقواعد الذهبية
-1. أي تعديل إعدادات أو برومبت -> ضعه في `desktop/data/`.
-2. أي ميزة إضافية (مثل `anki_bridge.py`) -> اتركها كملفات وسيطة ومستقلة وتستدعى كأدوات.
-3. التعديلات داخل كود الواجهة -> احفظها عبر فرع `custom-ar` واعمل `git merge upstream/main` عند كل تحديث.
+## 3. التعامل مع التعارضات في حال حدوثها (Conflict Resolution)
+- إذا عدّل المطور سطراً لم تقم بتعديله -> يتم دمجه تلقائياً 100%.
+- إذا عدّل المطور ملفاً قمت بتعديله (مثل نصوص تم تعريبها سابقاً) -> يضع Git علامات التعارض القياسية (`<<<<<<< HEAD`).
+  1. راجع الأسطر المتعارضة في الملف.
+  2. احفظ التعديل المطلوب.
+  3. نفّذ:
+     ```bash
+     git add .
+     git commit -m "chore: resolve sync merge conflicts"
+     git push origin main
+     ```
+
+---
+
+## 4. الفحص والتشغيل بعد التحديث
+بعد كل تحديث:
+```bash
+cd desktop
+npm install
+npm run typecheck
+cd ..
+./launch_learnharness.sh
+```
