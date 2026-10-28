@@ -1,94 +1,72 @@
 [
   {
-    "id": "test_cloze_linalg",
-    "deckName": "LearnHarness::AI",
-    "modelName": "Cloze",
+    "id": "fastapi_async_event_loop_single",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
     "fields": {
-      "Text": "In linear algebra, a matrix {{c1::determinant}} equal to 0 means the transformation collapses volume to zero.",
-      "Extra": "No inverse matrix exists when det(A) = 0."
+      "Text": "في FastAPI، يعمل مسار {{c1::async def}} مباشرة على مسار الـ Event Loop الأحادي، وأي عملية حاجبة بداخله تجمد السيرفر.",
+      "Extra": "لذلك لا يجب وضع أي كود متزامن (blocking) داخل async def دون تفويضه."
     },
-    "tags": [
-      "linear-algebra",
-      "ultralearning"
-    ]
+    "tags": ["fastapi", "asyncio", "event-loop"]
   },
   {
     "id": "fastapi_sync_bridge_in_async",
-    "modelName": "Cloze",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
     "fields": {
-      "Text": "To execute a synchronous blocking function inside an `async def` endpoint without blocking the Event Loop, wrap it using `await {{c1::run_in_threadpool(func, *args)}}` or `await {{c1::asyncio.to_thread(func, *args)}}`.",
-      "Extra": "This offloads the blocking synchronous call to the AnyIO threadpool while returning an awaitable future to the main Event Loop, keeping the server non-blocking."
+      "Text": "لتشغيل دالة متزامنة حاجبة داخل مسار async def دون تجميد الـ Event Loop، يجب تغليفها باستخدام {{c1::await run_in_threadpool(func, *args)}} أو {{c1::await asyncio.to_thread(func, *args)}}.",
+      "Extra": "يقوم هذا بنقل التنفيذ الحاجب إلى الـ Threadpool الخاص بـ AnyIO مع إبقاء الـ Event Loop حراً."
     },
-    "tags": [
-      "fastapi",
-      "asyncio",
-      "threadpool"
-    ]
+    "tags": ["fastapi", "asyncio", "threadpool"]
   },
   {
     "id": "fastapi_event_loop_cooperative",
-    "modelName": "Cloze",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
     "fields": {
-      "Text": "In FastAPI, an `async def` endpoint runs directly on the single-threaded Event Loop and only yields execution to other tasks at {{c1::explicit `await` points}}.",
-      "Extra": "Without an explicit yield point (`await`), any synchronous or CPU-heavy operation inside `async def` blocks the single Event Loop thread, preventing all other incoming requests from being processed."
+      "Text": "في FastAPI، يعمل مسار async def بتعاون تشاركي ولا يفسح المجال للمهام الأخرى إلا عند وجود {{c1::نقاط await صريحة}} فقط.",
+      "Extra": "غياب نقاط الـ await في مسار async def يجعل المهمة تحتكر الخيط الرئيسي بالكامل وتمنع معالجة باقي الطلبات."
     },
-    "tags": [
-      "fastapi",
-      "asyncio",
-      "event-loop"
-    ]
+    "tags": ["fastapi", "asyncio", "event-loop"]
   },
   {
     "id": "fastapi_threadpool_delegation",
-    "modelName": "Cloze",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
     "fields": {
-      "Text": "When an endpoint is defined using standard `def` (without async), FastAPI automatically runs it off the main Event Loop inside a {{c1::Threadpool (via AnyIO)}}.",
-      "Extra": "Blocking operations inside a standard `def` endpoint only hold up that worker thread in the threadpool, while the main Event Loop remains completely free to handle other requests."
+      "Text": "عند تعريف مسار في FastAPI باستخدام دالة {{c1::def عادية (بدون async)}}، يقوم السيرفر تلقائياً بتشغيلها داخل {{c2::مجمع خيوط معالجة منفصل (Threadpool via AnyIO)}}.",
+      "Extra": "هذا يحمي الـ Event Loop الرئيسي من التجميد حتى لو كانت الدالة تستخدم دوال حاجبة مثل time.sleep أو requests."
     },
-    "tags": [
-      "fastapi",
-      "threadpool",
-      "anyio"
-    ]
+    "tags": ["fastapi", "threadpool", "anyio"]
   },
   {
     "id": "fastapi_asyncio_gather",
-    "modelName": "Cloze",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
     "fields": {
-      "Text": "To run independent coroutines concurrently and reduce total wait time to the single longest request, pass un-awaited coroutine objects to `await {{c1::asyncio.gather(coro1, coro2, ...)}}`.",
-      "Extra": "Do not use `await` on individual function calls inside `gather(...)`, as that forces them to execute sequentially before `gather` is even invoked."
+      "Text": "لتشغيل عدة دوال coroutines مستقلة بالتوازي واختصار وقت الاستجابة لأطول طلب فقط، نمررها دون await إلى {{c1::await asyncio.gather(coro1, coro2, ...)}}.",
+      "Extra": "تحذير: لا تضع await على الدوال داخل gather، لأن ذلك سيجعلها تنفذ بالتتابع قبل استدعاء gather أصلاً."
     },
-    "tags": [
-      "fastapi",
-      "asyncio",
-      "concurrency"
-    ]
+    "tags": ["fastapi", "asyncio", "concurrency"]
   },
   {
     "id": "fastapi_async_vs_sync_db_drivers",
-    "modelName": "Cloze",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
     "fields": {
-      "Text": "Calling synchronous database drivers (e.g., `psycopg2`) directly inside `async def` causes {{c1::Event Loop thread freezing}}. To fix this with sync drivers, define the endpoint using standard {{c2::`def`}}.",
-      "Extra": "Using synchronous DB drivers inside `async def` freezes the main Event Loop. Use async drivers (`asyncpg` + `AsyncSession`) for `async def`, or use standard `def` endpoints for synchronous drivers (`psycopg2`)."
+      "Text": "استخدام مشغلات قواعد البيانات المتزامنة مثل psycopg2 داخل async def يجمد السيرفر؛ والحل السليم معها هو استخدام {{c1::def عادية}} بدلاً من async.",
+      "Extra": "إذا أردت استخدام مسارات async def فيجب استخدام مشغلات غير متزامنة مثل asyncpg مع AsyncSession."
     },
-    "tags": [
-      "fastapi",
-      "database",
-      "sqlalchemy",
-      "asyncpg"
-    ]
+    "tags": ["fastapi", "database", "sqlalchemy", "asyncpg"]
   },
   {
     "id": "fastapi_async_decision_matrix",
-    "modelName": "Cloze",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
     "fields": {
-      "Text": "In FastAPI, define endpoints as `async def` when using {{c1::natively async libraries}}, and standard `def` when using {{c2::synchronous blocking libraries}}.",
-      "Extra": "Use `async def` for native async drivers (`httpx`, `asyncpg`), standard `def` for sync libraries (`requests`, `psycopg2`), and `BackgroundTasks` for non-blocking long operations like sending emails."
+      "Text": "في FastAPI، القاعدة المعمارية: استخدم async def للمكتبات {{c1::غير المتزامنة أصلاً (مثل httpx)}}، واستخدم def عادية للمكتبات {{c2::المتزامنة الحاجبة (مثل requests و boto3)}}.",
+      "Extra": "وللعمليات الحسابية الثقيلة (CPU-bound)، استخدم ProcessPoolExecutor لتجاوز قفل الـ GIL."
     },
-    "tags": [
-      "fastapi",
-      "asyncio",
-      "best-practices"
-    ]
+    "tags": ["fastapi", "asyncio", "best-practices"]
   }
 ]

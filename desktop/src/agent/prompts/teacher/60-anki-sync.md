@@ -8,8 +8,8 @@ When a concept has been thoroughly understood and verified via the check questio
 
 2. **Arabic Card Architecture (البنية العربية للبطاقة):**
    - All card fields (`frontOrText`, `backOrExtra`) MUST be formulated in clear Arabic (اللغة العربية الفصحى).
-   - Technical keywords and code tokens remain in English or inline code blocks inside the Arabic text.
-   - For Cloze cards: write an Arabic explanation containing `{{c1::...}}` on the load-bearing term (e.g. `في مكتبة FastAPI، دالة {{c1::async def}} تعمل مباشرة على مسار {{c2::Event Loop}} الأحادي دون تفويض للـ Threadpool.`).
+   - Technical keywords and code tokens MUST be wrapped in HTML `<code>...</code>` tags (e.g. `<code>await run_in_threadpool(func, *args)</code>`) to prevent Arabic font rendering glitches (such as turning `*` into decorative flowers or flipping commas).
+   - For Cloze cards: write an Arabic explanation containing `{{c1::<code>...</code>}}` on the load-bearing term (e.g. `في مكتبة FastAPI، دالة {{c1::<code>async def</code>}} تعمل مباشرة على مسار {{c2::Event Loop}} الأحادي.`).
    - For Basic cards: a crisp Arabic question under 15 words with a direct 1-line answer.
 
 3. **Minimum Information Principle:**
