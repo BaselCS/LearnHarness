@@ -531,10 +531,12 @@ function QuestionDockForm({
 				// (the slider grays out and nothing is sent).
 				if (kind !== "quiz" || sel.dontKnow) return;
 				e.preventDefault();
+				const isRtl = typeof document !== "undefined" ? document.documentElement.dir === "rtl" : true;
+				const step = e.key === "ArrowRight" ? (isRtl ? -1 : 1) : (isRtl ? 1 : -1);
 				setConfIdx((i) =>
 					Math.min(
 						CONFIDENCE_STOPS.length - 1,
-						Math.max(0, i + (e.key === "ArrowRight" ? 1 : -1)),
+						Math.max(0, i + step),
 					),
 				);
 			} else if (e.key === " ") {

@@ -11,5 +11,44 @@
       "linear-algebra",
       "ultralearning"
     ]
+  },
+  {
+    "id": "fastapi_sync_bridge_in_async",
+    "modelName": "Cloze",
+    "fields": {
+      "Text": "To execute a synchronous blocking function inside an `async def` endpoint without blocking the Event Loop, wrap it using `await {{c1::run_in_threadpool(func, *args)}}` or `await {{c1::asyncio.to_thread(func, *args)}}`.",
+      "Extra": "This offloads the blocking synchronous call to the AnyIO threadpool while returning an awaitable future to the main Event Loop, keeping the server non-blocking."
+    },
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "threadpool"
+    ]
+  },
+  {
+    "id": "fastapi_event_loop_cooperative",
+    "modelName": "Cloze",
+    "fields": {
+      "Text": "In FastAPI, an `async def` endpoint runs directly on the single-threaded Event Loop and only yields execution to other tasks at {{c1::explicit `await` points}}.",
+      "Extra": "Without an explicit yield point (`await`), any synchronous or CPU-heavy operation inside `async def` blocks the single Event Loop thread, preventing all other incoming requests from being processed."
+    },
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "event-loop"
+    ]
+  },
+  {
+    "id": "fastapi_threadpool_delegation",
+    "modelName": "Cloze",
+    "fields": {
+      "Text": "When an endpoint is defined using standard `def` (without async), FastAPI automatically runs it off the main Event Loop inside a {{c1::Threadpool (via AnyIO)}}.",
+      "Extra": "Blocking operations inside a standard `def` endpoint only hold up that worker thread in the threadpool, while the main Event Loop remains completely free to handle other requests."
+    },
+    "tags": [
+      "fastapi",
+      "threadpool",
+      "anyio"
+    ]
   }
 ]

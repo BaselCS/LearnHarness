@@ -32,18 +32,24 @@ export const CONFIDENCE_COLORS: readonly string[] = [
 ];
 
 /** The rail's paint for a stop value (0–100). */
-export function confidenceRailStyle(value: number): CSSProperties {
+export function confidenceRailStyle(value: number, rtl?: boolean): CSSProperties {
 	const color = CONFIDENCE_COLORS[CONFIDENCE_STOPS.indexOf(value)] ?? CONFIDENCE_COLORS[2]!;
+	const isRtl = rtl ?? (typeof document !== "undefined" ? document.documentElement.dir === "rtl" : true);
+	const gradientDir = isRtl ? "to left" : "to right";
+	const tickPositions = isRtl
+		? [30, 50, 70, 90].map((p) => `${100 - p}% 0`)
+		: [30, 50, 70, 90].map((p) => `${p}% 0`);
+
 	return {
 		backgroundColor: "#141414",
 		backgroundImage: [
-			`linear-gradient(90deg, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent 100%)`,
+			`linear-gradient(${gradientDir}, ${color} 0%, ${color} ${value}%, transparent ${value}%, transparent 100%)`,
 			...[30, 50, 70, 90].map(
 				() => "linear-gradient(90deg, rgba(230,230,230,0.35), rgba(230,230,230,0.35))",
 			),
 		].join(", "),
 		backgroundSize: ["100% 100%", "1px 100%", "1px 100%", "1px 100%", "1px 100%"].join(", "),
-		backgroundPosition: ["0 0", ...[30, 50, 70, 90].map((p) => `${p}% 0`)].join(", "),
+		backgroundPosition: ["0 0", ...tickPositions].join(", "),
 		backgroundRepeat: "no-repeat",
 	};
 }
