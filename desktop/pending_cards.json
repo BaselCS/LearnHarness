@@ -50,5 +50,18 @@
       "threadpool",
       "anyio"
     ]
+  },
+  {
+    "id": "fastapi_asyncio_gather",
+    "modelName": "Cloze",
+    "fields": {
+      "Text": "To run independent coroutines concurrently and reduce total wait time to the single longest request, pass un-awaited coroutine objects to `await {{c1::asyncio.gather(coro1, coro2, ...)}}`.",
+      "Extra": "Do not use `await` on individual function calls inside `gather(...)`, as that forces them to execute sequentially before `gather` is even invoked."
+    },
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "concurrency"
+    ]
   }
 ]
