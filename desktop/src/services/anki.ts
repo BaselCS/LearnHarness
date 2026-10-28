@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ANKI_CONNECT_URL = "http://127.0.0.1:8765";
-const DEFAULT_DECK = "LearnHarness::AI";
+const DEFAULT_DECK = "تقنية::FastAPI";
 const PENDING_FILE = path.join(process.cwd(), "pending_cards.json");
 
 export interface AnkiCardPayload {
@@ -50,12 +50,34 @@ export class AnkiService {
 		}
 	}
 
+	static async resolveModelName(desired: "Cloze" | "Basic"): Promise<string> {
+		try {
+			const res = await fetch(ANKI_CONNECT_URL, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ action: "modelNames", version: 6 }),
+			});
+			const data = (await res.json()) as { result?: string[] };
+			const models = data.result || [];
+			if (desired === "Cloze") {
+				if (models.includes("Cloze")) return "Cloze";
+				if (models.includes("قالب بطاقات النص المخفي")) return "قالب بطاقات النص المخفي";
+			} else {
+				if (models.includes("Basic")) return "Basic";
+				if (models.includes("قالب البطاقات الأساسي")) return "قالب البطاقات الأساسي";
+			}
+		} catch {
+			// fallback
+		}
+		return desired;
+	}
+
 	static async addCard(
 		card: AnkiCardPayload
 	): Promise<{ success: boolean; noteId?: number; queued?: boolean }> {
 		const isUp = await this.ping();
 		const deck = card.deckName || DEFAULT_DECK;
-		const model = card.modelName || (card.fields.Text ? "Cloze" : "Basic");
+		const rawModel = card.modelName || (card.fields.Text ? "Cloze" : "Basic");
 		const tags = Array.from(new Set([...(card.tags || []), "learnharness", `concept::${card.id}`]));
 
 		if (!isUp) {
@@ -64,6 +86,7 @@ export class AnkiService {
 		}
 
 		await this.ensureDeckAndModel(deck);
+		const model = await this.resolveModelName(rawModel);
 
 		try {
 			const res = await fetch(ANKI_CONNECT_URL, {
@@ -130,7 +153,8 @@ export class AnkiService {
 
 		for (const card of queue) {
 			const deck = card.deckName || DEFAULT_DECK;
-			const model = card.modelName || (card.fields.Text ? "Cloze" : "Basic");
+			const rawModel = card.modelName || (card.fields.Text ? "Cloze" : "Basic");
+			const model = await this.resolveModelName(rawModel);
 			const tags = Array.from(new Set([...(card.tags || []), "learnharness", `concept::${card.id}`]));
 
 			try {

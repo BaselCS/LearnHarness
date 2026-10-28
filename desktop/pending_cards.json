@@ -63,5 +63,32 @@
       "asyncio",
       "concurrency"
     ]
+  },
+  {
+    "id": "fastapi_async_vs_sync_db_drivers",
+    "modelName": "Cloze",
+    "fields": {
+      "Text": "Calling synchronous database drivers (e.g., `psycopg2`) directly inside `async def` causes {{c1::Event Loop thread freezing}}. To fix this with sync drivers, define the endpoint using standard {{c2::`def`}}.",
+      "Extra": "Using synchronous DB drivers inside `async def` freezes the main Event Loop. Use async drivers (`asyncpg` + `AsyncSession`) for `async def`, or use standard `def` endpoints for synchronous drivers (`psycopg2`)."
+    },
+    "tags": [
+      "fastapi",
+      "database",
+      "sqlalchemy",
+      "asyncpg"
+    ]
+  },
+  {
+    "id": "fastapi_async_decision_matrix",
+    "modelName": "Cloze",
+    "fields": {
+      "Text": "In FastAPI, define endpoints as `async def` when using {{c1::natively async libraries}}, and standard `def` when using {{c2::synchronous blocking libraries}}.",
+      "Extra": "Use `async def` for native async drivers (`httpx`, `asyncpg`), standard `def` for sync libraries (`requests`, `psycopg2`), and `BackgroundTasks` for non-blocking long operations like sending emails."
+    },
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "best-practices"
+    ]
   }
 ]
