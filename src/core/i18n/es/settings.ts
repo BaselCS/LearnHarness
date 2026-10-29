@@ -144,6 +144,10 @@ export const settings: Record<keyof typeof en, string> = {
 	"settings.keys.docsLink": "clave ↗",
 	"settings.keys.add": "+ Agregar clave de proveedor",
 	"settings.keys.saveFailed": "No se pudo guardar ({status})",
+	"settings.keys.dictationHintPrefix": "Crea una ",
+	"settings.keys.dictationHintLink": "clave de API de Deepgram",
+	"settings.keys.dictationHintSuffix": " con el rol de Miembro o superior, luego agrégala arriba.",
+
 
 	"settings.menu.searchModels": "Buscar modelos…",
 	"settings.menu.loadingModels": "Cargando modelos…",

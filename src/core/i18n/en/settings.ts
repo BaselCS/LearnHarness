@@ -143,6 +143,10 @@ export const settings = {
 	"settings.keys.docsLink": "key ↗",
 	"settings.keys.add": "+ Add provider key",
 	"settings.keys.saveFailed": "Save failed ({status})",
+	"settings.keys.dictationHintPrefix": "Create a ",
+	"settings.keys.dictationHintLink": "Deepgram API key",
+	"settings.keys.dictationHintSuffix": " with the Member role or higher, then add it above.",
+
 
 	"settings.menu.searchModels": "Search models…",
 	"settings.menu.loadingModels": "Loading models…",
