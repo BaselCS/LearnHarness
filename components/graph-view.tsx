@@ -376,7 +376,7 @@ export function GraphCostControl({ costs }: { costs: GraphCostSummary }) {
 			</button>
 			</Hint>
 			{open && (
-				<div className="absolute right-0 rtl:right-auto rtl:left-0 top-full mt-2 max-h-[60vh] overflow-y-auto">
+				<div className="absolute right-0 top-full mt-2 max-h-[60vh] overflow-y-auto">
 					<GraphCostPanel costs={costs} />
 				</div>
 			)}

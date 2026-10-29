@@ -620,25 +620,6 @@ body {
 	max-width: max(0px, calc(100% - 5.5rem - var(--lh-wco-right, 0px)));
 }
 
-/* RTL Window Controls & Floating layout (RTL overhaul):
-   In RTL, the close button / traffic lights sit at the FAR LEFT,
-   the sidebar toggle sits at the FAR RIGHT. Floating controls
-   must align to the left side with a gutter for the close button,
-   leaving the right side completely clear for the sidebar toggle. */
-[dir="rtl"] .lh-wco-gutter,
-[dir="rtl"].lh-electron .lh-wco-gutter,
-[dir="rtl"] .lh-electron .lh-wco-gutter {
-	padding-right: 0.75rem;
-	padding-left: max(7.5rem, calc(0.75rem + var(--lh-wco-right, 0px)));
-}
-[dir="rtl"] .lh-electron .lh-wco-floating,
-[dir="rtl"] .lh-wco-floating {
-	right: auto;
-	left: max(6.5rem, calc(0.5rem + var(--lh-wco-right, 0px)));
-	max-width: max(0px, calc(100% - 11rem - var(--lh-wco-right, 0px)));
-	align-items: flex-start;
-}
-
 /* --font-title deliberately NOT @theme inline (see comment above): the
    session-name-serif toggle overrides this var at runtime, so the
    .font-title utility must read it through var(), not carry a baked copy. */

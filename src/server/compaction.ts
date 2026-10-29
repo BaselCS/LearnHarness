@@ -57,6 +57,7 @@ import { runSubagent } from "../agent/subagents/pi-run.ts";
 const SUMMARIZER_SYSTEM_PROMPT: Localized<string> = {
 	en: "You are the session-compaction summarizer for a tutoring agent. You receive the transcript span to summarize and write exactly the summary the instructions demand — nothing else, no preamble, no meta-commentary.",
 	es: "Eres el resumidor de compactación de sesiones de un agente tutor. Recibes el tramo de transcripción a resumir y escribes exactamente el resumen que piden las instrucciones — nada más, sin preámbulo, sin metacomentarios.",
+	ar: "أنت مُلخّص ضغط الجلسات لوكيل تعليمي. تتلقى مقطع النص المراد تلخيصه وتكتب بدقة التلخيص الذي تطلبه التعليمات — لا شيء غير ذلك، دون مقدمات أو تعليقات جانبية.",
 };
 
 /** The one-shot summary call: zero tools, one turn, text out. The engine
