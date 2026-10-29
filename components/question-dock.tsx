@@ -7,7 +7,7 @@ import { finishDictation, isDictationActive, joinDictation, useDictationTarget }
 import { useEnterSubmits } from "@/components/enter-submits";
 import { ToolContentResponse } from "@/components/ai-elements/message";
 import { cn } from "@/lib/utils";
-import { useT } from "@/components/i18n";
+import { useDirection } from "@/components/i18n";
 import {
 	buildAnswer,
 	repairMathForDisplay,
@@ -113,7 +113,6 @@ export function QuestionDock({
 	dictationClaim = true,
 	compactionRunning = false,
 }: QuestionDockProps) {
-	const t = useT();
 	// The probe-phase names (owner, 2026-10-09) canonicalize onto their
 	// teach twins for every dock concern — parse dispatch, labels, kinds:
 	// the probe quiz ("probe") is quiz-shaped, the probe free-recall
@@ -123,8 +122,7 @@ export function QuestionDock({
 	// The chip's display name carries the tool's OWN name (owner
 	// 2026-10-09): probe-phase questions label Probe/Recall in the
 	// composer; teach tools keep the standing labels.
-	const toolLabel =
-		toolName === "probe" ? t("composer.kind.probe") : toolName === "recall" ? t("composer.kind.recall") : undefined;
+	const toolLabel = toolName === "probe" ? "Probe" : toolName === "recall" ? "Recall" : undefined;
 	// Parse, don't cast (src/core/tool-parts.ts): the model authored this
 	// input, and only the schema the tool declared vouches for its shape.
 	// The dock mounts on input-available parts (already validated at the
@@ -136,7 +134,7 @@ export function QuestionDock({
 	if (!parsed) {
 		return (
 			<div data-testid="malformed-question" className="rounded-xl border border-dashed bg-card/60 p-3 text-sm text-muted-foreground">
-				{t("composer.dock.malformed")}
+				This question arrived malformed — the transcript keeps the retry.
 			</div>
 		);
 	}
@@ -152,7 +150,7 @@ export function QuestionDock({
 					label={
 						(canonical === "quiz" || canonical === "explain") &&
 						normalizeQuizType((parsed as { type?: unknown }).type) === "predict"
-							? t("composer.kind.prediction")
+							? "Prediction"
 							: undefined
 					}
 				/>
@@ -213,7 +211,6 @@ export function QuestionDockBar({
 	 *  label Probe/Recall — the phase boundary visible in the composer. */
 	toolLabel?: string;
 }) {
-	const t = useT();
 	if (variant === "reveal") {
 		return (
 			<button
@@ -226,11 +223,11 @@ export function QuestionDockBar({
 					<PlayIcon className="size-3.5" />
 				</span>
 				<span className="min-w-0 flex-1">
-					<span className="block text-sm font-medium">{t("composer.dock.checkUnderstanding")}</span>
+					<span className="block text-sm font-medium">Check your understanding</span>
 					<span className="block truncate text-xs text-muted-foreground">{teaserText(question)}</span>
 				</span>
 				<span className="flex shrink-0 items-center gap-1 text-xs font-medium text-primary">
-					{`${t("composer.dock.open")} `}<ChevronRightIcon className="size-3.5" />
+					Open <ChevronRightIcon className="size-3.5" />
 				</span>
 			</button>
 		);
@@ -245,15 +242,11 @@ export function QuestionDockBar({
 			<span className="shrink-0 text-xs font-medium uppercase tracking-wide text-muted-foreground">
 				{label ??
 							toolLabel ??
-							(toolName === "quiz"
-								? t("composer.kind.check")
-								: toolName === "explain"
-									? t("composer.kind.explain")
-									: t("composer.kind.question"))}
+							(toolName === "quiz" ? "Check" : toolName === "explain" ? "Explain" : "Question")}
 			</span>
 			<span className="min-w-0 flex-1 truncate text-muted-foreground">{teaserText(question)}</span>
 			<span className="flex shrink-0 items-center gap-1 text-xs font-medium">
-				{`${t("composer.dock.answer")} `}<ArrowDownIcon className="size-3.5" />
+				Answer <ArrowDownIcon className="size-3.5" />
 			</span>
 		</button>
 	);
@@ -273,7 +266,8 @@ function QuestionDockForm({
 	dictationClaim = true,
 	compactionRunning = false,
 }: Omit<QuestionDockProps, "expanded" | "onExpand" | "reveal">) {
-	const t = useT();
+	const dir = useDirection();
+	const isRtl = dir === "rtl";
 	const kind = toolQuestionKind(toolName);
 
 	// Canonical QuestionData, built once per question. Quiz options are
@@ -540,10 +534,11 @@ function QuestionDockForm({
 				// (the slider grays out and nothing is sent).
 				if (kind !== "quiz" || sel.dontKnow) return;
 				e.preventDefault();
+				const step = e.key === "ArrowRight" ? (isRtl ? -1 : 1) : (isRtl ? 1 : -1);
 				setConfIdx((i) =>
 					Math.min(
 						CONFIDENCE_STOPS.length - 1,
-						Math.max(0, i + (e.key === "ArrowRight" ? 1 : -1)),
+						Math.max(0, i + step),
 					),
 				);
 			} else if (e.key === " ") {
@@ -573,26 +568,26 @@ function QuestionDockForm({
 			{/* Question area — scrolls internally if very tall; the bottom row stays put.
 			    Capped by the measured column (--dock-max-h; the old fixed 55dvh cut
 			    long questions short — owner round, 2026-10-05). */}
-			<div data-session-find-root="" className="max-h-[var(--dock-max-h,55dvh)] overflow-y-auto px-4 pt-3">
+			<div data-dock-scroll-area="" data-session-find-root="" className="max-h-[var(--dock-max-h,55dvh)] overflow-y-auto px-4 pt-3">
 				<div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
 					{toolName === "probe"
-						? t("composer.kind.probe")
+						? "تشخيص"
 						: toolName === "recall"
-							? t("composer.kind.recall")
+							? "استرجاع"
 							: kind === "quiz"
 								? qd.questionType === "predict"
-									? t("composer.kind.prediction")
-									: t("composer.kind.check")
+									? "توقع"
+									: "تحقق"
 									: kind === "explain"
-										? t("composer.kind.explain")
-											: t("composer.kind.question")}
-					{qd.mode === "multi-select" && ` · ${t("composer.dock.selectAll")}`}
+										? "تفسير"
+											: "سؤال"}
+					{qd.mode === "multi-select" && " · اختر كل ما ينطبق"}
 				</div>
-				<div className="mb-3 font-medium">
+				<div className="mb-3 font-medium text-start" dir="auto">
 					<ToolContentResponse>{qd.question}</ToolContentResponse>
 				</div>
 				{qd.context && (
-					<div className="mb-3 text-sm text-muted-foreground">
+					<div className="mb-3 text-sm text-muted-foreground text-start" dir="auto">
 						<ToolContentResponse>{qd.context}</ToolContentResponse>
 					</div>
 				)}
@@ -610,7 +605,7 @@ function QuestionDockForm({
 									data-kbdrow={i}
 									onClick={() => toggle(i)}
 									className={cn(
-										"flex items-start gap-3 rounded-lg border px-3 py-2 text-left text-sm outline-none transition-colors",
+										"flex items-start gap-3 rounded-lg border px-3 py-2 text-start text-sm outline-none transition-colors",
 										isSel ? "border-primary bg-accent" : "hover:bg-accent/50",
 										i === kbdIdx && !isSel && "ring-1 ring-border bg-accent/40",
 									)}
@@ -628,7 +623,7 @@ function QuestionDockForm({
 											</span>
 										)}
 									</span>
-									<span>
+									<span className="flex-1" dir="auto">
 										<ToolContentResponse>{opt.label}</ToolContentResponse>
 										{kind !== "quiz" && opt.description && (
 											// Option subtext renders in Source Sans 3 (owner's mockup);
@@ -673,7 +668,7 @@ function QuestionDockForm({
 								>
 									{sel.dontKnow && <span className="size-1.5 rounded-full bg-current" />}
 								</span>
-								<span>{t("composer.dock.dontKnow")}</span>
+								<span>لا أعلم</span>
 							</button>
 						)}
 
@@ -685,7 +680,7 @@ function QuestionDockForm({
 								data-kbdrow={optionCount}
 								onClick={selectOther}
 								className={cn(
-									"flex items-start gap-3 rounded-lg border px-3 py-2 text-left text-sm outline-none transition-colors",
+									"flex items-start gap-3 rounded-lg border px-3 py-2 text-start text-sm outline-none transition-colors",
 									sel.otherSelected ? "border-primary bg-accent" : "border-dashed hover:bg-accent/50",
 									kbdIdx === optionCount && !sel.otherSelected && "ring-1 ring-border bg-accent/40",
 								)}
@@ -739,7 +734,7 @@ function QuestionDockForm({
 												submit();
 											}
 									}}
-									placeholder={t("composer.dock.otherPlaceholder")}
+									placeholder="اكتب إجابتك الخاصة…"
 									className="lh-input w-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
 									onClick={(e) => e.stopPropagation()}
 								/>
@@ -771,7 +766,7 @@ function QuestionDockForm({
 								sel.dontKnow ? "text-muted-foreground/50" : "text-muted-foreground",
 							)}
 						>
-							{t("composer.dock.confidence")}
+							مستوى الثقة
 						</span>
 						<div
 							className={cn("relative h-4 min-w-0 flex-1", sel.dontKnow && "opacity-40")}
@@ -791,7 +786,7 @@ function QuestionDockForm({
 								aria-hidden
 								data-testid="confidence-rail"
 								className="pointer-events-none absolute top-1/2 left-2 right-2 h-1.5 -translate-y-1/2 rounded-full border border-border"
-								style={confidenceRailStyle(CONFIDENCE_STOPS[confIdx]!)}
+								style={confidenceRailStyle(CONFIDENCE_STOPS[confIdx]!, isRtl)}
 							/>
 							<input
 								type="range"
@@ -800,9 +795,9 @@ function QuestionDockForm({
 								step={1}
 								value={CONFIDENCE_STOPS[confIdx]}
 								disabled={sel.dontKnow}
-								aria-label={t("composer.dock.confidenceAria")}
-								aria-valuetext={t("composer.dock.confidenceValue", { n: CONFIDENCE_STOPS[confIdx]! })}
-								title={t("composer.dock.confidenceTitle")}
+								aria-label="Confidence — the probability your selected answer is correct"
+								aria-valuetext={`${CONFIDENCE_STOPS[confIdx]} percent`}
+								title="The probability your selected answer is correct — 50% is a coin flip. Adjust with ←/→."
 								data-testid="confidence-slider"
 								onChange={(e) => {
 									// Snap to the nearest stop; the rendered VALUE is the stop's own
@@ -857,7 +852,7 @@ function QuestionDockForm({
 					className="rounded-[10px] border border-border/70 bg-background/60 transition-colors focus-within:border-primary/50"
 				>
 					<div className="px-2.5 pt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-						{qd.mode === "text" ? t("composer.dock.yourAnswer") : t("composer.dock.yourThinking")}
+						{qd.mode === "text" ? "إجابتك" : "طريقة تفكيرك"}
 					</div>
 					{qd.mode === "text" ? (
 						<textarea
@@ -883,7 +878,7 @@ function QuestionDockForm({
 									submit();
 								}
 							}}
-							placeholder={t("composer.dock.answerPlaceholder")}
+							placeholder="اكتب إجابتك هنا…"
 							rows={1}
 							className="field-sizing-content lh-input max-h-48 min-h-10 w-full resize-none bg-transparent px-2.5 py-2 outline-none placeholder:text-muted-foreground"
 						/>
@@ -913,7 +908,7 @@ function QuestionDockForm({
 									submit();
 								}
 							}}
-							placeholder={t("composer.dock.thinkingPlaceholder")}
+							placeholder="لماذا اخترت هذه الإجابة؟ اكتب ما يخطر في بالك."
 							rows={1}
 							className={cn(
 								"field-sizing-content lh-input max-h-48 w-full resize-none bg-transparent px-2.5 py-2 outline-none placeholder:text-muted-foreground/70",
@@ -925,14 +920,14 @@ function QuestionDockForm({
 					)}
 					<div className="flex items-center justify-between gap-2 p-1">
 						<span aria-hidden className="pl-1.5 text-xs text-muted-foreground">
-								{compactionRunning ? t("composer.dock.compacting") : t("composer.dock.keysHint")}
+								{compactionRunning ? "جاري تكثيف الجلسة…" : "↵ للإرسال · ⇧↵ لسطر جديد"}
 						</span>
 						<Button
 							type="submit"
 							disabled={!canSubmit || compactionRunning}
 							className="ml-auto h-9 rounded-[6px] px-3.5 text-sm font-medium"
 						>
-							{t("composer.dock.submit")}
+							إرسال الإجابة
 						</Button>
 					</div>
 				</div>
