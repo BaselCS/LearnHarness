@@ -1,6 +1,9 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import { CONFIDENCE_STOPS } from "@/src/core";
+import { useDirection } from "@/components/i18n";
 
 /**
  * The confidence RAIL — the slider's paint, shared by two surfaces so they
@@ -32,9 +35,9 @@ export const CONFIDENCE_COLORS: readonly string[] = [
 ];
 
 /** The rail's paint for a stop value (0–100). */
-export function confidenceRailStyle(value: number, rtl?: boolean): CSSProperties {
+export function confidenceRailStyle(value: number, rtl = false): CSSProperties {
 	const color = CONFIDENCE_COLORS[CONFIDENCE_STOPS.indexOf(value)] ?? CONFIDENCE_COLORS[2]!;
-	const isRtl = rtl ?? (typeof document !== "undefined" ? document.documentElement.dir === "rtl" : true);
+	const isRtl = rtl;
 	const gradientDir = isRtl ? "to left" : "to right";
 	const tickPositions = isRtl
 		? [30, 50, 70, 90].map((p) => `${100 - p}% 0`)
@@ -55,13 +58,15 @@ export function confidenceRailStyle(value: number, rtl?: boolean): CSSProperties
 }
 
 /** The static rail — the slider's look, disc removed. */
-export function ConfidenceRail({ value, className }: { value: number; className?: string }) {
+export function ConfidenceRail({ value, className, rtl }: { value: number; className?: string; rtl?: boolean }) {
+	const dir = useDirection();
+	const isRtl = rtl ?? (dir === "rtl");
 	return (
 		<div
 			aria-hidden
 			data-testid="confidence-rail"
 			className={cn("h-1.5 w-full rounded-full border border-border", className)}
-			style={confidenceRailStyle(value)}
+			style={confidenceRailStyle(value, isRtl)}
 		/>
 	);
 }
