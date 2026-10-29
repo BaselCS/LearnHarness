@@ -620,6 +620,13 @@ body {
 	max-width: max(0px, calc(100% - 5.5rem - var(--lh-wco-right, 0px)));
 }
 
+[dir="rtl"] .lh-electron .lh-wco-floating,
+[dir="rtl"] .lh-wco-floating {
+	right: auto;
+	left: 0.5rem;
+	align-items: flex-start;
+}
+
 /* --font-title deliberately NOT @theme inline (see comment above): the
    session-name-serif toggle overrides this var at runtime, so the
    .font-title utility must read it through var(), not carry a baked copy. */
