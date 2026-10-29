@@ -372,6 +372,13 @@ function createWindow(url) {
 	});
 
 	void win.loadURL(url);
+	win.webContents.on("did-fail-load", (_event, _errorCode, _errorDescription, validatedURL) => {
+		if (process.env.LH_DEV_URL && validatedURL.startsWith(process.env.LH_DEV_URL)) {
+			setTimeout(() => {
+				if (!win.isDestroyed()) void win.loadURL(validatedURL);
+			}, 300);
+		}
+	});
 	// Zoom truth reaches the renderer for EVERY load (reload, nav): the
 	// renderer's --lh-zoom must never go stale. The fallback catcher below
 	// covers ⌘= / layout variants the menu's ⌘Plus may not claim — menu-
