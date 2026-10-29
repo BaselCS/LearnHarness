@@ -389,6 +389,7 @@ type CompactionPromptTemplate = (spanText: string, planTreeText: string | null) 
 const COMPACTION_PROMPTS: Localized<CompactionPromptTemplate> = {
 	en: englishCompactionPrompt,
 	es: spanishCompactionPrompt,
+	ar: arabicCompactionPrompt,
 };
 
 function englishCompactionPrompt(spanText: string, planTreeText: string | null): string {
