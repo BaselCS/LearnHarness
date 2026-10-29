@@ -49,6 +49,7 @@ describe("AgentBuildOptions.toolToggles (the P2 bridge)", () => {
 		const names = toolNames(prober);
 		assert.ok(!names.includes("ask_user_question"), "the delta dropped the tool");
 		assert.ok(names.includes("probe_done"), "probe_done always-on");
+		chatStore.deleteChat(chatId);
 	});
 
 	it("an explicitly injected opts.tools registry is NEVER toggle-filtered", () => {

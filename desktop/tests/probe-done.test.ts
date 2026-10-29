@@ -10,7 +10,7 @@
 import assert from "node:assert/strict";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { after, describe, it } from "node:test";
+import { after, afterEach, describe, it } from "node:test";
 import { probeDoneTool } from "../src/agent/tools/probe.ts";
 import type { SteerMessage } from "../src/core/contracts.ts";
 import { hasProbeDone, type LhMessage } from "../src/core/native-messages.ts";
@@ -23,6 +23,18 @@ const dataDir = PATHS.data;
 fs.mkdirSync(dataDir, { recursive: true });
 
 const createdChats: string[] = [];
+afterEach((t) => {
+	if ((t as any)?.passed) {
+		for (const id of createdChats.splice(0)) {
+			try {
+				chatStore.deleteChat(id);
+			} catch {
+				/* already gone */
+			}
+		}
+	}
+});
+
 after(() => {
 	for (const id of createdChats) {
 		try {

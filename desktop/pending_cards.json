@@ -7,7 +7,11 @@
       "Text": "في FastAPI، يعمل مسار {{c1::async def}} مباشرة على مسار الـ Event Loop الأحادي، وأي عملية حاجبة بداخله تجمد السيرفر.",
       "Extra": "لذلك لا يجب وضع أي كود متزامن (blocking) داخل async def دون تفويضه."
     },
-    "tags": ["fastapi", "asyncio", "event-loop"]
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "event-loop"
+    ]
   },
   {
     "id": "fastapi_sync_bridge_in_async",
@@ -17,7 +21,11 @@
       "Text": "لتشغيل دالة متزامنة حاجبة داخل مسار async def دون تجميد الـ Event Loop، يجب تغليفها باستخدام {{c1::await run_in_threadpool(func, *args)}} أو {{c1::await asyncio.to_thread(func, *args)}}.",
       "Extra": "يقوم هذا بنقل التنفيذ الحاجب إلى الـ Threadpool الخاص بـ AnyIO مع إبقاء الـ Event Loop حراً."
     },
-    "tags": ["fastapi", "asyncio", "threadpool"]
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "threadpool"
+    ]
   },
   {
     "id": "fastapi_event_loop_cooperative",
@@ -27,7 +35,11 @@
       "Text": "في FastAPI، يعمل مسار async def بتعاون تشاركي ولا يفسح المجال للمهام الأخرى إلا عند وجود {{c1::نقاط await صريحة}} فقط.",
       "Extra": "غياب نقاط الـ await في مسار async def يجعل المهمة تحتكر الخيط الرئيسي بالكامل وتمنع معالجة باقي الطلبات."
     },
-    "tags": ["fastapi", "asyncio", "event-loop"]
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "event-loop"
+    ]
   },
   {
     "id": "fastapi_threadpool_delegation",
@@ -37,7 +49,11 @@
       "Text": "عند تعريف مسار في FastAPI باستخدام دالة {{c1::def عادية (بدون async)}}، يقوم السيرفر تلقائياً بتشغيلها داخل {{c2::مجمع خيوط معالجة منفصل (Threadpool via AnyIO)}}.",
       "Extra": "هذا يحمي الـ Event Loop الرئيسي من التجميد حتى لو كانت الدالة تستخدم دوال حاجبة مثل time.sleep أو requests."
     },
-    "tags": ["fastapi", "threadpool", "anyio"]
+    "tags": [
+      "fastapi",
+      "threadpool",
+      "anyio"
+    ]
   },
   {
     "id": "fastapi_asyncio_gather",
@@ -47,7 +63,11 @@
       "Text": "لتشغيل عدة دوال coroutines مستقلة بالتوازي واختصار وقت الاستجابة لأطول طلب فقط، نمررها دون await إلى {{c1::await asyncio.gather(coro1, coro2, ...)}}.",
       "Extra": "تحذير: لا تضع await على الدوال داخل gather، لأن ذلك سيجعلها تنفذ بالتتابع قبل استدعاء gather أصلاً."
     },
-    "tags": ["fastapi", "asyncio", "concurrency"]
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "concurrency"
+    ]
   },
   {
     "id": "fastapi_async_vs_sync_db_drivers",
@@ -57,7 +77,12 @@
       "Text": "استخدام مشغلات قواعد البيانات المتزامنة مثل psycopg2 داخل async def يجمد السيرفر؛ والحل السليم معها هو استخدام {{c1::def عادية}} بدلاً من async.",
       "Extra": "إذا أردت استخدام مسارات async def فيجب استخدام مشغلات غير متزامنة مثل asyncpg مع AsyncSession."
     },
-    "tags": ["fastapi", "database", "sqlalchemy", "asyncpg"]
+    "tags": [
+      "fastapi",
+      "database",
+      "sqlalchemy",
+      "asyncpg"
+    ]
   },
   {
     "id": "fastapi_async_decision_matrix",
@@ -67,6 +92,49 @@
       "Text": "في FastAPI، القاعدة المعمارية: استخدم async def للمكتبات {{c1::غير المتزامنة أصلاً (مثل httpx)}}، واستخدم def عادية للمكتبات {{c2::المتزامنة الحاجبة (مثل requests و boto3)}}.",
       "Extra": "وللعمليات الحسابية الثقيلة (CPU-bound)، استخدم ProcessPoolExecutor لتجاوز قفل الـ GIL."
     },
-    "tags": ["fastapi", "asyncio", "best-practices"]
+    "tags": [
+      "fastapi",
+      "asyncio",
+      "best-practices"
+    ]
+  },
+  {
+    "id": "low_resource_icl_vs_ft",
+    "modelName": "Basic",
+    "fields": {
+      "Front": "لماذا يُفضل التعلم داخل السياق (ICL) على الضبط الدقيق (Fine-tuning) في اللغات شحيحة الموارد؟",
+      "Back": "يؤدي الـ <code>Fine-tuning</code> في البيانات الشحيحة إلى <code>Overfitting</code> (حفظ البيانات) و <code>Catastrophic Forgetting</code>، بينما يحافظ <code>ICL</code> على ذكاء النموذج العام مع توجيهه بسياق مؤقت."
+    },
+    "tags": [
+      "nlp",
+      "low-resource",
+      "icl"
+    ]
+  },
+  {
+    "id": "rd_matrix_logic",
+    "modelName": "Basic",
+    "fields": {
+      "Front": "في مصفوفة <code>(r, d)</code>، ما هو الفرق الوظيفي بين البارامترين؟",
+      "Back": "يمثل <code>r</code> عدد الأمثلة المسترجعة ديناميكياً (للمحتوى)، بينما يمثل <code>d</code> عدد الأمثلة الثابتة (للأسلوب والاتساق). التوازن بينهما يمنع ضياع النموذج."
+    },
+    "tags": [
+      "nlp",
+      "icl",
+      "prompt-engineering"
+    ]
+  },
+  {
+    "id": "morph_norm_logic",
+    "modelName": "Basic",
+    "fields": {
+      "Front": "ما هي الفائدة الرئيسية للتطبيع الصرفي (Morphological Normalization) في اللغات شحيحة الموارد؟",
+      "Back": "يقلل التباين الصرفي (مثل إزالة السوابق واللواحق)، مما يزيد من \"كثافة\" البيانات الشحيحة ويحسن قدرة <code>BM25</code> على استرجاع أمثلة ذات صلة معنوية."
+    },
+    "tags": [
+      "nlp",
+      "morphology",
+      "low-resource"
+    ]
   }
 ]

@@ -14,7 +14,7 @@
 import assert from "node:assert/strict";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { after, describe, it } from "node:test";
+import { after, afterEach, describe, it } from "node:test";
 import {
 	createFauxCore,
 	fauxAssistantMessage,
@@ -58,6 +58,17 @@ const CONCLUDE = {
 } as const;
 
 const createdChats: string[] = [];
+afterEach((t) => {
+	if ((t as any)?.passed) {
+		for (const id of createdChats.splice(0)) {
+			try {
+				chatStore.deleteChat(id);
+			} catch {
+				/* already gone */
+			}
+		}
+	}
+});
 after(() => {
 	for (const id of createdChats) {
 		try {
@@ -170,6 +181,7 @@ describe("practice flow (scripted model)", () => {
 		// The turn continued past conclude to the reveal text.
 		assert.ok(afterConclude.some((m) => (m as { role?: string }).role === "assistant" && JSON.stringify((m as { content?: unknown }).content).includes("Clean proof.")));
 		assert.equal(activeProblemOf(afterConclude), null);
+		chatStore.deleteChat(chat.id);
 	});
 
 	it("a working-trace submission keeps the problem active", async () => {
@@ -184,6 +196,7 @@ describe("practice flow (scripted model)", () => {
 		assert.ok(lastSaw(calls, "Your thinking:"), "the turn's prompt carries the thinking");
 		// The problem is still active — a trace never concludes.
 		assert.equal(activeProblemOf(chatStore.getChat(chat.id)!.messages)?.toolCallId, "call-p2");
+		chatStore.deleteChat(chat.id);
 	});
 
 	it("Esc dismissal marks silently; the next input rides the synthesized conclude pair", async () => {
@@ -221,5 +234,6 @@ describe("practice flow (scripted model)", () => {
 			"the pair carries the shared conclude ack text",
 		);
 		assert.ok(lastSaw(calls, "dismissed"), "the model saw the dismissed outcome");
+		chatStore.deleteChat(chat.id);
 	});
 });

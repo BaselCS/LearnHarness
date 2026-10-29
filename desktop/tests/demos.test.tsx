@@ -27,7 +27,7 @@ import React from "react";
 import assert from "node:assert/strict";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { after, describe, it } from "node:test";
+import { after, afterEach, describe, it } from "node:test";
 import { Value } from "typebox/value";
 import { createFauxCore, fauxAssistantMessage, fauxToolCall, type FauxResponseStep, type ToolCall } from "@earendil-works/pi-ai";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -98,6 +98,19 @@ process.env.OPENROUTER_API_KEY ??= "test-key-presence-gate";
 const JOBS_DIR = path.join(PATHS.data, "jobs");
 const createdChats: string[] = [];
 const createdJobs: string[] = [];
+
+afterEach((t) => {
+	if ((t as any)?.passed) {
+		for (const id of createdChats.splice(0)) {
+			try {
+				jobStore.deleteJobsForChat(id);
+				chatStore.deleteChat(id);
+			} catch {
+				/* already gone */
+			}
+		}
+	}
+});
 
 after(() => {
 	for (const id of createdChats) {
@@ -857,6 +870,7 @@ describe("demo/visual job runners", () => {
 		const part = saved[1]!.parts.find((p) => p.type === "tool-demo");
 		assert.ok(part && part.type === "tool-demo", "demo tool part persisted");
 		assert.equal(typeof (part as { output?: unknown }).output, "string", "part output is the ack, not the result");
+		chatStore.deleteChat(chat.id);
 	});
 
 	it("runJob still steers on visual failure and the job lands error", async () => {
@@ -906,6 +920,7 @@ describe("demo/visual job runners", () => {
 		const result = (steers[0]!.details as { result: unknown }).result as { svg: string; notes?: string };
 		assert.equal(result.svg, "");
 		assert.match(result.notes ?? "", /^FAILED:/);
+		chatStore.deleteChat(chat.id);
 	});
 
 	it("dispatch through a teacher turn: the call acks mid-turn and the runner completes in the background", async () => {
@@ -982,6 +997,7 @@ describe("demo/visual job runners", () => {
 
 			// Idempotency: dispatch dedupes by toolCallId — no second job.
 			assert.equal(jobStore.listJobs(chat.id).length, 1, "no duplicate job for the same tool part");
+			chatStore.deleteChat(chat.id);
 		} finally {
 			demoModelOverride.current = undefined;
 			headlessOverride.current = undefined;

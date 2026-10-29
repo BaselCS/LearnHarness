@@ -18,7 +18,7 @@
 
 import assert from "node:assert/strict";
 import * as fs from "node:fs";
-import { after, describe, it } from "node:test";
+import { after, afterEach, describe, it } from "node:test";
 import type { AuditVerdicts, GraphChain, GraphNode, SessionFindings } from "../src/core/contracts.ts";
 import type { QuestionAnswerData } from "../src/core/question-core.ts";
 import type { LhMessage } from "../src/core/native-messages.ts";
@@ -54,6 +54,18 @@ for (const file of LEDGER_PATHS) {
 		backups.push({ file, bak });
 	}
 }
+
+afterEach((t) => {
+	if ((t as any)?.passed) {
+		for (const id of createdChats.splice(0)) {
+			try {
+				chatStore.deleteChat(id);
+			} catch {
+				/* already gone */
+			}
+		}
+	}
+});
 
 after(() => {
 	for (const file of LEDGER_PATHS) {

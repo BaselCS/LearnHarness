@@ -40,7 +40,8 @@ const EXCLUDED_DIR_NAMES = new Set(["node_modules", ".git", "Library", ".Trash"]
  *  learner's life, so the home directory is the anchor.) */
 export function resolveSourcePath(p?: string): string {
 	if (!p) return os.homedir();
-	return path.isAbsolute(p) ? p : path.join(os.homedir(), p);
+	const clean = p.startsWith("file://") ? p.slice(7) : p;
+	return path.isAbsolute(clean) ? clean : path.join(os.homedir(), clean);
 }
 
 /** pi's formatSize idiom (50KB prints as "50.0KB"). */

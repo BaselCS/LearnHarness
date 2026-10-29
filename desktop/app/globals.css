@@ -348,10 +348,35 @@ body {
 	height: auto !important;
 }
 
-/* Display math: long equations scroll instead of overflowing the column. */
+/* ============================================================
+ * KaTeX BiDi / RTL Isolation
+ * When the page is in Arabic (dir="rtl"), KaTeX formulas must be
+ * strictly LTR-isolated so matrices, delimiters, signs, and sub/superscripts
+ * never get flipped or scrambled by the Unicode BiDi algorithm.
+ * ============================================================ */
+.katex,
+.katex-display {
+	direction: ltr !important;
+	unicode-bidi: isolate !important;
+	text-align: center;
+}
+
 .katex-display {
 	overflow-x: auto;
 	overflow-y: hidden;
+}
+
+.katex-html {
+	direction: ltr !important;
+	unicode-bidi: isolate !important;
+}
+
+/* Inline math inside RTL text */
+p .katex,
+span .katex,
+li .katex {
+	display: inline-block;
+	vertical-align: middle;
 }
 
 /* ============================================================
@@ -611,203 +636,6 @@ body {
 	left: max(6.5rem, calc(0.5rem + var(--lh-wco-right, 0px)));
 	max-width: max(0px, calc(100% - 11rem - var(--lh-wco-right, 0px)));
 	align-items: flex-start;
-}
-
-/* RTL Localization Overrides */
-[dir="rtl"] [data-testid="settings-nav-keys"] {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="settings-nav-keys"]::after {
-	content: "المزودون والمفاتيح";
-	font-size: 0.875rem;
-}
-
-[dir="rtl"] .lh-extract-btn {
-	font-size: 0 !important;
-}
-[dir="rtl"] .lh-extract-btn[data-state="running"]::after {
-	content: "قيد التشغيل…";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-[dir="rtl"] .lh-extract-btn[data-state="idle"]::after {
-	content: "استخراج المفاهيم";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-
-[dir="rtl"] .lh-connect-btn {
-	font-size: 0 !important;
-}
-[dir="rtl"] .lh-connect-btn::after {
-	content: "ربط";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-
-[dir="rtl"] .lh-manage-btn {
-	font-size: 0 !important;
-}
-[dir="rtl"] .lh-manage-btn::after {
-	content: "إدارة…";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-
-[dir="rtl"] .lh-node-picker-chip {
-	font-size: 0 !important;
-}
-[dir="rtl"] .lh-node-picker-chip[data-empty="true"]::after {
-	content: "اختيار مفاهيم";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-[dir="rtl"] .lh-node-picker-chip[data-empty="false"]::after {
-	content: attr(data-ar-label);
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-
-[dir="rtl"] .lh-node-picker-clear {
-	font-size: 0 !important;
-}
-[dir="rtl"] .lh-node-picker-clear::after {
-	content: "مسح";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-
-[dir="rtl"] [data-testid="graph-row-enabled"] > span:first-child > span:first-child {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="graph-row-enabled"] > span:first-child > span:first-child::after {
-	content: "استخراج المفاهيم";
-	font-size: var(--lh-prose-size, 1rem);
-	font-weight: 500;
-}
-
-[dir="rtl"] [data-testid="graph-row-rendering"] > span:first-child > span:first-child {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="graph-row-rendering"] > span:first-child > span:first-child::after {
-	content: "عرض شجرة المعرفة";
-	font-size: var(--lh-prose-size, 1rem);
-	font-weight: 500;
-}
-
-[dir="rtl"] [data-testid="group-provider-keys"] > div:first-child,
-[dir="rtl"] [data-testid="group-provider-keys"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-provider-keys"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-provider-keys"] > p::after {
-	content: "مفاتيح واجهات النماذج";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="group-subscriptions"] > div:first-child,
-[dir="rtl"] [data-testid="group-subscriptions"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-subscriptions"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-subscriptions"] > p::after {
-	content: "الاشتراكات المباشرة";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="group-dictation"] > div:first-child,
-[dir="rtl"] [data-testid="group-dictation"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-dictation"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-dictation"] > p::after {
-	content: "الإملاء الصوتي";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="group-search"] > div:first-child,
-[dir="rtl"] [data-testid="group-search"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-search"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-search"] > p::after {
-	content: "محركات البحث";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="group-models"] > div:first-child,
-[dir="rtl"] [data-testid="group-models"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-models"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-models"] > p::after {
-	content: "النماذج";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="group-tools"] > div:first-child,
-[dir="rtl"] [data-testid="group-tools"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-tools"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-tools"] > p::after {
-	content: "الأدوات";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="group-context"] > div:first-child,
-[dir="rtl"] [data-testid="group-context"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-context"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-context"] > p::after {
-	content: "السياق والذاكرة";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="group-prompts"] > div:first-child,
-[dir="rtl"] [data-testid="group-prompts"] > p {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="group-prompts"] > div:first-child::after,
-[dir="rtl"] [data-testid="group-prompts"] > p::after {
-	content: "تعليمات النظام والوكلاء";
-	font-size: 0.875rem;
-	font-weight: 600;
-}
-
-[dir="rtl"] [data-testid="update-check"] {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="update-check"]::after {
-	content: "التحقق من وجود تحديثات";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-
-[dir="rtl"] [data-testid="update-restart"] {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="update-restart"]::after {
-	content: "إعادة التشغيل";
-	font-size: 0.875rem;
-	font-weight: 500;
-}
-
-[dir="rtl"] [data-testid="release-notes"] {
-	font-size: 0 !important;
-}
-[dir="rtl"] [data-testid="release-notes"]::after {
-	content: "ملاحظات الإصدار ↗";
-	font-size: 0.875rem;
-	font-weight: 500;
 }
 
 /* --font-title deliberately NOT @theme inline (see comment above): the

@@ -90,5 +90,7 @@ for (const revokedAfterQueue of [false, true]) {
 		await delivered;
 		assert.equal(wakes, 1, "explicit consent resumes the preserved result exactly once");
 		assert.equal(stores.jobStore.getJob(job.id)!.status, "done");
+		stores.jobStore.deleteJobsForChat(chat.id);
+		stores.chatStore.deleteChat(chat.id);
 	});
 }

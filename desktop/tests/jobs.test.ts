@@ -136,7 +136,7 @@ function trackJob(id: string) {
  * nothing ever times out, which is why the file passes alone and flaked
  * in the full run. The fence makes every test's start state identical:
  * all tracked jobs settled, aborts unregistered, seams inert. */
-afterEach(() => {
+afterEach((t) => {
 	for (const id of createdJobs) {
 		try {
 			const job = jobStore.getJob(id);
@@ -154,6 +154,18 @@ afterEach(() => {
 	// increment anyone's counter, a no-op runner can't spawn real work.
 	setJobRespawn(() => {});
 	setTurnRunner(async () => 200);
+
+	// If the test passed, remove all created test conversations
+	if ((t as any)?.passed) {
+		for (const id of createdChats.splice(0)) {
+			try {
+				jobStore.deleteJobsForChat(id);
+				chatStore.deleteChat(id);
+			} catch {
+				/* already gone */
+			}
+		}
+	}
 });
 
 after(() => {
@@ -1863,16 +1875,19 @@ describe("composer steering: steerLiveChat + the deliver-or-requeue lifecycle", 
 
 	it("no live turn → false, nothing parked (the client falls back to a plain send)", () => {
 		const chatId = chatStore.createChat("steer: idle").id;
+		trackChat(chatId);
 		const msg = { id: "steer_x1", role: "user", content: "hold on", timestamp: 1 };
 		assert.equal(steerLiveChat(chatId, msg as never), false);
 		const { handed, agent } = fakeAgent();
 		registerLiveAgent(chatId, agent as never); // a later run hands NOTHING
 		assert.equal(handed.length, 0, "nothing was parked by the refused steer");
 		unregisterLiveAgent(chatId);
+		chatStore.deleteChat(chatId);
 	});
 
 	it("live agent → steered AND parked (the stranding safety net)", () => {
 		const chatId = chatStore.createChat("steer: live").id;
+		trackChat(chatId);
 		const msg = { id: "steer_x2", role: "user", content: "also cover Venus", timestamp: 1 };
 		const { handed, agent } = fakeAgent();
 		registerLiveAgent(chatId, agent as never);
@@ -1882,10 +1897,12 @@ describe("composer steering: steerLiveChat + the deliver-or-requeue lifecycle", 
 		registerLiveAgent(chatId, agent as never);
 		assert.equal(handed.length, 1);
 		unregisterLiveAgent(chatId);
+		chatStore.deleteChat(chatId);
 	});
 
 	it("settlement reconciliation: delivered ids drop, stranded ones ride the NEXT run", () => {
 		const chatId = chatStore.createChat("steer: reconcile").id;
+		trackChat(chatId);
 		const delivered = { id: "steer_d1", role: "user", content: "delivered", timestamp: 1 };
 		const stranded = { id: "steer_s1", role: "user", content: "stranded behind a question", timestamp: 2 };
 		const { handed, agent } = fakeAgent();
@@ -1905,5 +1922,6 @@ describe("composer steering: steerLiveChat + the deliver-or-requeue lifecycle", 
 		assert.deepEqual((next.handed[0] as { id: string }).id, "steer_s1");
 		unregisterLiveAgent(chatId);
 		reconcileUserSteers(chatId, [stranded, delivered] as never); // cleanup
+		chatStore.deleteChat(chatId);
 	});
 });

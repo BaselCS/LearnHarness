@@ -16,7 +16,7 @@
 import assert from "node:assert/strict";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { after, describe, it } from "node:test";
+import { after, afterEach, describe, it } from "node:test";
 import {
 	createFauxCore,
 	fauxAssistantMessage,
@@ -264,6 +264,17 @@ function createConfiguredChat(title: string) {
 }
 
 const createdChats: string[] = [];
+afterEach((t) => {
+	if ((t as any)?.passed) {
+		for (const id of createdChats.splice(0)) {
+			try {
+				chatStore.deleteChat(id);
+			} catch {
+				/* already gone */
+			}
+		}
+	}
+});
 after(() => {
 	for (const id of createdChats) {
 		try {

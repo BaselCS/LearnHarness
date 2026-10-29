@@ -51,5 +51,6 @@ describe("the getApiKey-hook fix (native per-provider key resolution)", () => {
 				"the OpenRouter-pinning hook must stay deleted — a set hook overrides pi-ai's native per-provider env resolution for EVERY provider",
 			);
 		}
+		chatStore.deleteChat(chatId);
 	});
 });
