@@ -255,6 +255,7 @@ export type ResolvedGeneralSettings = Required<Omit<GeneralSettings, "dictationL
  *  streams monolingually), in picker order with their display labels. */
 export const DICTATION_LANGUAGES = [
 	{ id: "en", label: "English" },
+	{ id: "ar", label: "العربية" },
 	{ id: "multi", label: "Multilingual (auto-detect)" },
 	{ id: "es", label: "Español" },
 	{ id: "fr", label: "Français" },
