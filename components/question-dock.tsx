@@ -7,7 +7,7 @@ import { finishDictation, isDictationActive, joinDictation, useDictationTarget }
 import { useEnterSubmits } from "@/components/enter-submits";
 import { ToolContentResponse } from "@/components/ai-elements/message";
 import { cn } from "@/lib/utils";
-import { useT } from "@/components/i18n";
+import { useDirection, useT } from "@/components/i18n";
 import {
 	buildAnswer,
 	repairMathForDisplay,
@@ -274,6 +274,8 @@ function QuestionDockForm({
 	compactionRunning = false,
 }: Omit<QuestionDockProps, "expanded" | "onExpand" | "reveal">) {
 	const t = useT();
+	const dir = useDirection();
+	const isRtl = dir === "rtl";
 	const kind = toolQuestionKind(toolName);
 
 	// Canonical QuestionData, built once per question. Quiz options are
@@ -540,10 +542,11 @@ function QuestionDockForm({
 				// (the slider grays out and nothing is sent).
 				if (kind !== "quiz" || sel.dontKnow) return;
 				e.preventDefault();
+				const step = e.key === "ArrowRight" ? (isRtl ? -1 : 1) : (isRtl ? 1 : -1);
 				setConfIdx((i) =>
 					Math.min(
 						CONFIDENCE_STOPS.length - 1,
-						Math.max(0, i + (e.key === "ArrowRight" ? 1 : -1)),
+						Math.max(0, i + step),
 					),
 				);
 			} else if (e.key === " ") {
@@ -791,7 +794,7 @@ function QuestionDockForm({
 								aria-hidden
 								data-testid="confidence-rail"
 								className="pointer-events-none absolute top-1/2 left-2 right-2 h-1.5 -translate-y-1/2 rounded-full border border-border"
-								style={confidenceRailStyle(CONFIDENCE_STOPS[confIdx]!)}
+								style={confidenceRailStyle(CONFIDENCE_STOPS[confIdx]!, isRtl)}
 							/>
 							<input
 								type="range"
