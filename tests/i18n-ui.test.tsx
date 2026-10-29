@@ -18,12 +18,14 @@ const placeholders = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1
 
 describe("translate", () => {
 	it("returns the language's copy", () => {
+		assert.equal(translate("ar", "settings.title"), "الإعدادات");
 		assert.equal(translate("es", "settings.title"), "Ajustes");
 		assert.equal(translate("en", "settings.title"), "Settings");
 	});
 
 	it("interpolates {name} placeholders", () => {
 		assert.equal(translate("en", "common.errorIn", { section: "general", error: "boom" }), "general: boom");
+		assert.equal(translate("ar", "common.errorIn", { section: "عام", error: "حدث خطأ" }), "عام: حدث خطأ");
 	});
 });
 
@@ -42,15 +44,15 @@ describe("dictionaries", () => {
 });
 
 describe("I18nProvider", () => {
-	it("components render the provider's language", () => {
+	it("components render the provider's language (Arabic)", () => {
 		const html = renderToStaticMarkup(
-			<I18nProvider initialLanguage="es">
+			<I18nProvider initialLanguage="ar">
 				<SettingsDialogBody onClose={() => {}} />
 			</I18nProvider>,
 		);
-		assert.ok(html.includes(">Ajustes<"));
-		assert.ok(html.includes("Cargando ajustes…"));
-		assert.ok(html.includes('aria-label="Cerrar ajustes"'));
+		assert.ok(html.includes(">الإعدادات<"));
+		assert.ok(html.includes("جارٍ تحميل الإعدادات…"));
+		assert.ok(html.includes('aria-label="إغلاق الإعدادات"'));
 	});
 
 	it("without a provider, components render English", () => {

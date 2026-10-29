@@ -7,7 +7,16 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { DEFAULT_LANGUAGE, resolveSettings, translate, type AppLanguage, type TranslationKey, type UserSettings } from "@/src/core";
+import {
+	DEFAULT_LANGUAGE,
+	resolveSettings,
+	translate,
+	getLanguageDirection,
+	type AppLanguage,
+	type TextDirection,
+	type TranslationKey,
+	type UserSettings,
+} from "@/src/core";
 import { useSettingsSaved } from "@/components/settings-signal";
 
 const LanguageContext = createContext<AppLanguage>(DEFAULT_LANGUAGE);
@@ -18,17 +27,26 @@ export function I18nProvider({ initialLanguage, children }: { initialLanguage: A
 		if (section !== "general") return;
 		fetch("/api/settings")
 			.then((r) => r.json() as Promise<{ settings?: UserSettings | null }>)
-			.then((body) => setLanguage(resolveSettings(body.settings ?? null).general.language))
+			.then((body) => {
+				const nextLang = resolveSettings(body.settings ?? null).general.language;
+				setLanguage(nextLang);
+			})
 			.catch(() => {});
 	});
 	useEffect(() => {
 		document.documentElement.lang = language;
+		document.documentElement.dir = getLanguageDirection(language);
 	}, [language]);
 	return <LanguageContext.Provider value={language}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage(): AppLanguage {
 	return useContext(LanguageContext);
+}
+
+export function useDirection(): TextDirection {
+	const language = useLanguage();
+	return getLanguageDirection(language);
 }
 
 export type Translate = (key: TranslationKey, vars?: Record<string, string | number>) => string;

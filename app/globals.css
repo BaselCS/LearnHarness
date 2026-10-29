@@ -313,10 +313,35 @@ body {
 	height: auto !important;
 }
 
-/* Display math: long equations scroll instead of overflowing the column. */
+/* ============================================================
+ * KaTeX BiDi / RTL Isolation
+ * When the page is in Arabic (dir="rtl"), KaTeX formulas must be
+ * strictly LTR-isolated so matrices, delimiters, signs, and sub/superscripts
+ * never get flipped or scrambled by the Unicode BiDi algorithm.
+ * ============================================================ */
+.katex,
+.katex-display {
+	direction: ltr !important;
+	unicode-bidi: isolate !important;
+	text-align: center;
+}
+
 .katex-display {
 	overflow-x: auto;
 	overflow-y: hidden;
+}
+
+.katex-html {
+	direction: ltr !important;
+	unicode-bidi: isolate !important;
+}
+
+/* Inline math inside RTL text */
+p .katex,
+span .katex,
+li .katex {
+	display: inline-block;
+	vertical-align: middle;
 }
 
 /* ============================================================
@@ -598,3 +623,19 @@ body {
 	outline: 1px solid var(--border);
 	border-radius: 0.25rem;
 }
+
+/* RTL WCO Gutter and Floating Alignment (Electron/Desktop) */
+[dir="rtl"] .lh-wco-gutter,
+[dir="rtl"].lh-electron .lh-wco-gutter,
+[dir="rtl"] .lh-electron .lh-wco-gutter {
+	padding-right: 0.75rem;
+	padding-left: max(7.5rem, calc(0.75rem + var(--lh-wco-right, 0px)));
+}
+[dir="rtl"] .lh-electron .lh-wco-floating,
+[dir="rtl"] .lh-wco-floating {
+	right: auto;
+	left: max(6.5rem, calc(0.5rem + var(--lh-wco-right, 0px)));
+	max-width: max(0px, calc(100% - 11rem - var(--lh-wco-right, 0px)));
+	align-items: flex-start;
+}
+

@@ -423,7 +423,7 @@ export function MathDisplay(props: ComponentProps<"span"> & ExtraProps) {
 	const ref = useRef<HTMLSpanElement>(null);
 	if (!className?.includes("katex-display")) {
 		return (
-			<span className={className} {...rest}>
+			<span className={className} dir={className?.includes("katex") ? "ltr" : undefined} {...rest}>
 				{children}
 			</span>
 		);
@@ -436,13 +436,13 @@ export function MathDisplay(props: ComponentProps<"span"> & ExtraProps) {
 		// land on it (owner report: the math corner neither highlights on hover
 		// nor copies; everything else works). display:block gives the corner a
 		// real box; z-10 keeps it above the equation spans it overlays.
-		<span className="group/md relative block z-0" data-testid="md-math">
+		<span className="group/md relative block z-0" data-testid="md-math" dir="ltr">
 			<CopyCorner
 				className="absolute top-0 right-0 z-10"
 				label={t("artifacts.md.copyEquation")}
 				getText={() => ref.current?.querySelector("annotation")?.textContent ?? ""}
 			/>
-			<span ref={ref} className={className} {...rest}>
+			<span ref={ref} className={className} dir="ltr" {...rest}>
 				{children}
 			</span>
 		</span>

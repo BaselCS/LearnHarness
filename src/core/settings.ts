@@ -256,6 +256,7 @@ export type ResolvedGeneralSettings = Required<Omit<GeneralSettings, "dictationL
 export const DICTATION_LANGUAGES = [
 	{ id: "en", label: "English" },
 	{ id: "multi", label: "Multilingual (auto-detect)" },
+	{ id: "ar", label: "العربية" },
 	{ id: "es", label: "Español" },
 	{ id: "fr", label: "Français" },
 	{ id: "de", label: "Deutsch" },
