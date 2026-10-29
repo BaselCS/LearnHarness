@@ -32,9 +32,9 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# Wait until Next.js is actively accepting connections
-for i in {1..40}; do
-    if curl -s -m 1 http://localhost:2949 >/dev/null 2>&1; then
+# Wait until Next.js and its API endpoints are compiled and actively responding
+for i in {1..60}; do
+    if curl -s -m 2 http://localhost:2949/api/settings >/dev/null 2>&1; then
         break
     fi
     sleep 0.25
