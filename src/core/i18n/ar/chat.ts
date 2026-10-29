@@ -1,8 +1,8 @@
 /** الترجمة العربية لسطح chat */
 export const chat = {
 	"chat.header.titleAria": "عنوان الجلسة",
-	"chat.header.renameTitle": "إعادة تسمية هذه الجلسة",
-	"chat.header.renameHint": "إعادة تسمية الجلسة",
+	"chat.header.renameTitle": "تسمية هذه الجلسة",
+	"chat.header.renameHint": "تسمية الجلسة",
 	"chat.header.openPlan": "فتح الخطة الكاملة",
 	"chat.header.planChip": "الخطة",
 	"chat.header.practiceTag": "ممارسة",
@@ -27,7 +27,7 @@ export const chat = {
 	"chat.phase.plan": "تخطيط",
 	"chat.phase.teach": "تدريس",
 	"chat.phase.planNodes.one": "الخطة · {n} عقدة",
-	"chat.phase.planNodes.other": "الخطة · {n} عقد",
+	"chat.phase.planNodes.other": "الخطة · {n} عُقَد",
 	"chat.compaction.moment": "تم ضغط السياق",
 	"chat.compaction.cut": "تم ضغط السجل",
 	"chat.compaction.cutTokens": "تم ضغط السجل · {k} ألف رمز",

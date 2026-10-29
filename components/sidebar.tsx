@@ -778,9 +778,9 @@ function SessionsSidebar() {
 							}}
 							placeholder={t("nav.sidebar.search.placeholder")}
 							aria-label={t("nav.sidebar.search")}
-							className="h-6 rounded-sm border-border bg-background pl-6 text-xs placeholder:text-muted-foreground/60"
+							className="h-6 rounded-sm border-border bg-background pl-6 rtl:pl-2 rtl:pr-6 text-xs placeholder:text-muted-foreground/60"
 						/>
-						<SearchIcon className="pointer-events-none absolute left-1.5 top-1/2 size-3 -translate-y-1/2 text-muted-foreground/70" />
+						<SearchIcon className="pointer-events-none absolute left-1.5 rtl:left-auto rtl:right-1.5 top-1/2 size-3 -translate-y-1/2 text-muted-foreground/70" />
 					</span>
 					</Hint>
 				</div>

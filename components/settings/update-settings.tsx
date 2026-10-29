@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BrailleSpinner } from "@/components/braille-spinner";
+import { useLanguage } from "@/components/i18n";
 import { SettingsRow, Toggle } from "./controls.tsx";
 
 /** Observational snapshot from electron/main.cjs; never updater permission. */
@@ -81,16 +82,20 @@ export function UpdateSettings({
 		void window.lh?.checkForUpdates?.().catch(() => setCheckFailed(true));
 	};
 
+	const language = useLanguage();
+	const versionLabel = language === "ar" ? `الإصدار ${version || "غير معروف"}` : `Version ${version || "unknown"}`;
+	const releaseNotesLabel = language === "ar" ? "ملاحظات الإصدار" : "Release notes";
+
 	return (
 		<>
 			<SettingsRow
-				label={`Version ${version || "unknown"}`}
+				label={versionLabel}
 				testid="row-version"
 				hint={
 					<>
 						{status && <span className="block" role="status" data-testid="update-status">{status}</span>}
 						{active && <span className="block">{MANUAL_UPDATE_HINT}</span>}
-						{releaseNotes && <a href={releaseNotes} target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:text-foreground hover:underline" data-testid="release-notes">Release notes</a>}
+						{releaseNotes && <a href={releaseNotes} target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:text-foreground hover:underline" data-testid="release-notes">{releaseNotesLabel}</a>}
 					</>
 				}
 			>

@@ -12,11 +12,12 @@ import { resolveSettings } from "../src/core/settings-resolution.ts";
 import { parseGeneralSettingsBody } from "../src/server/settings-body.ts";
 
 describe("the language registry", () => {
-	it("offers English and Spanish, each labelled in its own language", () => {
+	it("offers English, Arabic, and Spanish, each labelled in its own language", () => {
 		assert.deepEqual(
 			APP_LANGUAGES.map((l) => [l.id, l.label]),
 			[
 				["en", "English"],
+				["ar", "العربية"],
 				["es", "Español"],
 			],
 		);

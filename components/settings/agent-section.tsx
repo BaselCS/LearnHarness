@@ -95,6 +95,13 @@ const SEARCH_ENGINES = ["tavily", "brave"] as const;
  *  changing — the Teacher stream settled this 2026-09-19). */
 export const TOGGLE_TOOLS = ["research", "demo", "visual", "pdf"] as const;
 
+const TOOL_LABELS_AR: Record<(typeof TOGGLE_TOOLS)[number], string> = {
+	research: "الباحثون",
+	demo: "المجربون",
+	visual: "الممثلون (رسامون)",
+	pdf: "قارئ الpdfs",
+};
+
 const THINKING_LEVELS: readonly ThinkingLevel[] = ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
 
 /** SegmentInfo as GET /api/settings/prompts returns it. */
@@ -801,20 +808,23 @@ export function AgentSection({
 						</SettingsRow>
 					);
 				})()}
-				{TOGGLE_TOOLS.map((id) => (
-					<SettingsRow
-						key={id}
-						label={t("settings.agent.tool.label", { id })}
-						testid={`tool-row-${id}`}
-					>
-						<Toggle
-							checked={agent?.tools?.[id] ?? true}
-							label={t("settings.agent.tool.aria", { id })}
-							testid={`toggle-tool-${id}`}
-							onChange={(on) => onSectionChange(composeTool(agent, id, on))}
-						/>
-					</SettingsRow>
-				))}
+				{TOGGLE_TOOLS.map((id) => {
+					const toolLabel = (language === "ar" ? TOOL_LABELS_AR[id] : undefined) ?? t("settings.agent.tool.label", { id });
+					return (
+						<SettingsRow
+							key={id}
+							label={toolLabel}
+							testid={`tool-row-${id}`}
+						>
+							<Toggle
+								checked={agent?.tools?.[id] ?? true}
+								label={toolLabel}
+								testid={`toggle-tool-${id}`}
+								onChange={(on) => onSectionChange(composeTool(agent, id, on))}
+							/>
+						</SettingsRow>
+					);
+				})}
 				{(() => {
 					const engine = agent?.search?.engine ?? null;
 					const anyKey = engineKeys.tavily === true || engineKeys.brave === true;
@@ -822,7 +832,11 @@ export function AgentSection({
 					return (
 						<SettingsRow
 							label={t("settings.agent.search.label")}
-							hint={search?.reason ?? undefined}
+							hint={
+								language === "ar" && search?.reason === "search engine: tavily (auto)"
+									? "محركات البحث : الأصل تافيلي"
+									: search?.reason ?? undefined
+							}
 							testid="search-engine-row"
 							dimmed={!anyKey}
 						>
