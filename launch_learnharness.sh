@@ -41,4 +41,5 @@ for i in {1..60}; do
 done
 
 # Launch Electron with dev URL
-LH_DEV_URL=http://localhost:2949 npx electron .
+export LH_DEV_URL="http://localhost:2949"
+npx electron .
