@@ -24,7 +24,8 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { AUTH_KEYS, type AuthKeyStatus } from "@/src/core";
+import { AUTH_KEYS, DEFAULT_LANGUAGE, translate, type AppLanguage, type AuthKeyStatus } from "@/src/core";
+import { useLanguage, useT } from "@/components/i18n";
 import { SettingsGroup } from "./controls.tsx";
 import { SubscriptionConnections } from "./subscription-connections.tsx";
 import { ProviderMenuList } from "./model-menu.tsx";
@@ -107,11 +108,12 @@ export function providerKeyLabel(id: string, providers: readonly ProviderKeyInfo
 
 /** The minimal status line, e.g. "…ab12 · 64 chars" (" · env" marks an
  *  environment-owned value — the row itself is read-only then). Pure. */
-export function keyStatusLine(status: AuthKeyStatus): string {
-	if (!status.present || !status.masked) return "not set";
+export function keyStatusLine(status: AuthKeyStatus, language: AppLanguage = DEFAULT_LANGUAGE): string {
+	if (!status.present || !status.masked) return translate(language, "settings.keys.notSet");
 	const tail = status.masked.replace(/ \((\d+) chars\)$/, "");
 	const chars = status.masked.match(/\((\d+) chars\)$/)?.[1] ?? "?";
-	return `${tail} · ${chars}${status.source === "env" ? " · env" : ""}`;
+	const envTag = language === "ar" ? " · بيئة" : " · env";
+	return `${tail} · ${chars}${status.source === "env" ? envTag : ""}`;
 }
 
 /** One table row: label left, tiny docs link + status right. Writable
@@ -141,6 +143,8 @@ function KeyTableRow({
 	onCancel: () => void;
 	testid: string;
 }) {
+	const t = useT();
+	const language = useLanguage();
 	const envOwned = status.source === "env";
 	const [value, setValue] = useState("");
 	const [error, setError] = useState<string | null>(null);
@@ -172,8 +176,8 @@ function KeyTableRow({
 						onKeyDown={(e) => {
 							if (e.key === "Enter") void save();
 						}}
-						placeholder="الصق المفتاح هنا…"
-						aria-label={`${label} key`}
+						placeholder={t("settings.keys.paste")}
+						aria-label={t("settings.keys.inputAria", { label })}
 						data-testid={`${testid}-input`}
 						disabled={busy}
 						autoFocus
@@ -186,7 +190,7 @@ function KeyTableRow({
 						data-testid={`${testid}-save`}
 						className="shrink-0 text-xs text-foreground underline-offset-2 hover:underline disabled:text-muted-foreground/40 disabled:no-underline cursor-pointer"
 					>
-						حفظ
+						{t("settings.action.save")}
 					</button>
 					<button
 						type="button"
@@ -195,7 +199,7 @@ function KeyTableRow({
 						data-testid={`${testid}-cancel`}
 						className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 					>
-						إلغاء
+						{t("settings.action.cancel")}
 					</button>
 					{status.present && status.source === "file" && onDelete && (
 						<button
@@ -205,7 +209,7 @@ function KeyTableRow({
 							data-testid={`${testid}-delete`}
 							className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-red-500 hover:underline cursor-pointer"
 						>
-							حذف
+							{t("settings.action.delete")}
 						</button>
 					)}
 				</div>
@@ -218,13 +222,6 @@ function KeyTableRow({
 		);
 	}
 
-	const rawStatus = keyStatusLine(status);
-	const displayStatus = rawStatus === "not set"
-		? "غير مضبوط"
-		: rawStatus.endsWith(" · env")
-			? rawStatus.replace(" · env", " · بيئة")
-			: rawStatus;
-
 	return (
 		<div data-testid={testid} className={envOwned ? "opacity-40" : undefined}>
 			<button
@@ -236,7 +233,7 @@ function KeyTableRow({
 					envOwned ? "cursor-default" : "cursor-pointer transition-colors hover:bg-accent/50"
 				}`}
 			>
-				<span className="font-ui text-sm font-medium text-foreground shrink-0">{label}</span>
+				<span className="font-ui text-xs text-foreground shrink-0">{label}</span>
 				<span className="flex items-center gap-2 whitespace-nowrap shrink-0">
 					{docsUrl && (
 						<a
@@ -244,13 +241,13 @@ function KeyTableRow({
 							target="_blank"
 							rel="noreferrer"
 							onClick={(e) => e.stopPropagation()}
-							className="text-xs text-muted-foreground/60 underline-offset-2 hover:text-foreground hover:underline"
+							className="text-[10px] text-muted-foreground/60 underline-offset-2 hover:text-foreground hover:underline"
 						>
-							المفتاح ↗
+							{t("settings.keys.docsLink")}
 						</a>
 					)}
-					<span data-testid={`${testid}-status`} className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-						{displayStatus}
+					<span data-testid={`${testid}-status`} className="font-mono text-[11px] text-muted-foreground whitespace-nowrap">
+						{keyStatusLine(status, language)}
 					</span>
 				</span>
 			</button>
@@ -272,6 +269,7 @@ function AddProviderRow({
 	addable: ProviderKeyInfo[];
 	onPick: (p: ProviderKeyInfo) => void;
 }) {
+	const t = useT();
 	const [open, setOpen] = useState(false);
 	const anchorRef = useRef<HTMLDivElement>(null);
 
@@ -304,10 +302,10 @@ function AddProviderRow({
 				aria-expanded={open}
 				data-testid="add-provider"
 				onClick={() => setOpen((v) => !v)}
-				className="flex w-full items-center justify-between gap-3 rounded-sm px-1 py-1.5 text-start font-ui text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground cursor-pointer"
+				className="flex w-full items-center justify-between gap-3 rounded-sm px-1 py-1.5 text-start font-ui text-xs text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground cursor-pointer"
 			>
-				<span>+ إضافة مفتاح مزود</span>
-				{addable.length > 0 && <span className="font-mono text-xs">{addable.length}</span>}
+				<span>{t("settings.keys.add")}</span>
+				{addable.length > 0 && <span className="font-mono text-[11px]">{addable.length}</span>}
 			</button>
 			{open && (
 				<MenuShell
@@ -340,6 +338,7 @@ export function KeysSection({
 }: {
 	initialRow?: string;
 }) {
+	const t = useT();
 	const [statuses, setStatuses] = useState<AuthKeyStatus[] | null>(null);
 	const [providers, setProviders] = useState<ProviderKeyInfo[] | undefined>(undefined);
 	const [loading, setLoading] = useState(true);
@@ -357,14 +356,11 @@ export function KeysSection({
 	useEffect(() => {
 		if (openRow === null && adding === null) return;
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.key !== "Escape") return;
-			// A language dropdown above this editor in the dismissal stack owns
-			// the first Escape; do not swallow it at document capture phase.
-			if (document.querySelector('[data-testid="dictation-language-menu"]')) return;
-			e.preventDefault();
-			e.stopPropagation();
-			setOpenRow(null);
-			setAdding(null);
+			if (e.key === "Escape") {
+				e.stopPropagation();
+				setOpenRow(null);
+				setAdding(null);
+			}
 		};
 		document.addEventListener("keydown", onKeyDown, true);
 		return () => document.removeEventListener("keydown", onKeyDown, true);
@@ -399,7 +395,7 @@ export function KeysSection({
 		});
 		if (!res.ok) {
 			const body = (await res.json().catch(() => ({}))) as { error?: string };
-			return body.error ?? `Save failed (${res.status})`;
+			return body.error ?? t("settings.keys.saveFailed", { status: res.status });
 		}
 		await reload();
 		// The cross-surface keys signal (zero-keys wave): the zero-keys pill,
@@ -416,7 +412,7 @@ export function KeysSection({
 	}
 
 	if (loading || statuses === null) {
-		return <p className="px-6 py-5 text-xs text-muted-foreground/70">جارٍ تحميل المفاتيح…<span className="sr-only">Loading keys…</span></p>;
+		return <p className="px-6 py-5 text-xs text-muted-foreground/70">{t("settings.keys.loading")}</p>;
 	}
 
 	const { providerRows, toolRows, unknownRows, addable } = classifyKeys(statuses, providers);
@@ -432,7 +428,7 @@ export function KeysSection({
 
 	return (
 		<>
-			<SettingsGroup label="Model API keys" arLabel="مفاتيح واجهات النماذج" testid="group-provider-keys">
+			<SettingsGroup label={t("settings.keys.group.providers")} testid="group-provider-keys">
 				{providerRows.map((status) => (
 					<KeyTableRow
 						key={status.id}
@@ -474,47 +470,46 @@ export function KeysSection({
 				</div>}
 			</SettingsGroup>
 
-			<SettingsGroup label="Subscriptions" arLabel="الاشتراكات المباشرة" testid="group-subscriptions">
+			<SettingsGroup label={t("settings.keys.group.subscriptions")} testid="group-subscriptions">
 				<SubscriptionConnections />
 			</SettingsGroup>
 
-			{(["Dictation", "Search"] as const).map((label) => (
+			{(["dictation", "search"] as const).map((group) => (
 				<SettingsGroup
-					key={label}
-					label={label}
-					arLabel={label === "Dictation" ? "الإملاء الصوتي" : "محركات البحث"}
-					testid={label === "Dictation" ? "group-dictation" : "group-search"}
+					key={group}
+					label={t(group === "dictation" ? "settings.keys.group.dictation" : "settings.keys.group.search")}
+					testid={`group-${group}`}
 				>
-				{toolRows.filter((status) => label === "Dictation" ? status.id === "DEEPGRAM_API_KEY" : status.id !== "DEEPGRAM_API_KEY").map((status) => (
-					<KeyTableRow
-						key={status.id}
-						label={status.info?.label ?? status.id}
-						docsUrl={status.info?.docsUrl}
-						status={status}
-						expanded={openRow === status.id}
-						onToggle={() => setOpenRow(openRow === status.id ? null : status.id)}
-						onSave={async (v) => {
-							const err = await saveKey(status.id, v);
-							if (!err) setOpenRow(null);
-							return err;
-						}}
-						onCancel={() => setOpenRow(null)}
-						onDelete={() => deleteKey(status.id)}
-						testid={`key-${status.id.toLowerCase()}`}
-					/>
-				))}
-				{label === "Dictation" && <>
-					<DictationLanguageSetting />
-					<p data-testid="dictation-setup-hint" className="px-1 text-[11px] leading-relaxed text-muted-foreground/70">
-						Create a <a
-							href="https://console.deepgram.com/"
-							target="_blank"
-							rel="noreferrer"
-							className="underline underline-offset-2 hover:text-foreground"
-						>Deepgram API key</a> with the Member role or higher, then add it above.
-					</p>
-				</>}
-			</SettingsGroup>
+					{toolRows.filter((status) => group === "dictation" ? status.id === "DEEPGRAM_API_KEY" : status.id !== "DEEPGRAM_API_KEY").map((status) => (
+						<KeyTableRow
+							key={status.id}
+							label={status.info?.label ?? status.id}
+							docsUrl={status.info?.docsUrl}
+							status={status}
+							expanded={openRow === status.id}
+							onToggle={() => setOpenRow(openRow === status.id ? null : status.id)}
+							onSave={async (v) => {
+								const err = await saveKey(status.id, v);
+								if (!err) setOpenRow(null);
+								return err;
+							}}
+							onCancel={() => setOpenRow(null)}
+							onDelete={() => deleteKey(status.id)}
+							testid={`key-${status.id.toLowerCase()}`}
+						/>
+					))}
+					{group === "dictation" && <>
+						<DictationLanguageSetting />
+						<p data-testid="dictation-setup-hint" className="px-1 text-[11px] leading-relaxed text-muted-foreground/70">
+							{t("settings.keys.dictationHintPrefix")}<a
+								href="https://console.deepgram.com/"
+								target="_blank"
+								rel="noreferrer"
+								className="underline underline-offset-2 hover:text-foreground"
+							>{t("settings.keys.dictationHintLink")}</a>{t("settings.keys.dictationHintSuffix")}
+						</p>
+					</>}
+				</SettingsGroup>
 			))}
 
 		</>
@@ -534,6 +529,7 @@ function AddProviderEditor({
 	onCancel: () => void;
 	error: string | null;
 }) {
+	const t = useT();
 	const [value, setValue] = useState("");
 	return (
 		<>
@@ -544,8 +540,8 @@ function AddProviderEditor({
 				onKeyDown={(e) => {
 					if (e.key === "Enter" && value.trim()) onSave(value);
 				}}
-				placeholder="الصق المفتاح هنا…"
-				aria-label={`${provider.label} key`}
+				placeholder={t("settings.keys.paste")}
+				aria-label={t("settings.keys.inputAria", { label: provider.label })}
 				data-testid={`key-${provider.id}-input`}
 				autoFocus
 				className="h-7 min-w-0 flex-1 rounded-sm border border-border bg-background px-1.5 font-mono text-xs text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-muted-foreground/50"
@@ -557,7 +553,7 @@ function AddProviderEditor({
 				data-testid={`key-${provider.id}-save`}
 				className="shrink-0 text-xs text-foreground underline-offset-2 hover:underline disabled:text-muted-foreground/40 disabled:no-underline cursor-pointer"
 			>
-				حفظ
+				{t("settings.action.save")}
 			</button>
 			<button
 				type="button"
@@ -565,7 +561,7 @@ function AddProviderEditor({
 				data-testid={`key-${provider.id}-cancel`}
 				className="shrink-0 text-xs text-muted-foreground/70 underline-offset-2 hover:text-foreground hover:underline cursor-pointer"
 			>
-				إلغاء
+				{t("settings.action.cancel")}
 			</button>
 			{error && (
 				<p role="alert" className="w-full pl-0 text-xs text-red-500" data-testid={`key-${provider.id}-error`}>

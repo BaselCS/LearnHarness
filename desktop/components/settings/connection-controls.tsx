@@ -2,16 +2,21 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useBackdropDismiss } from "@/components/backdrop-dismiss";
+import { useT } from "@/components/i18n";
 import { Button } from "@/components/ui/button";
 
 export function ConnectionRow({ label, action, disabled, onAction, children, testid, actionTestid, labelClassName }: { label: string; action: string; disabled: boolean; onAction: () => void; children?: React.ReactNode; testid?: string; actionTestid?: string; labelClassName?: string }) {
-	const actionClass = action === "Connect" ? "lh-connect-btn" : action === "Manage…" ? "lh-manage-btn" : "";
+	const t = useT();
+	const isConnect = action === "connect" || action === "Connect";
+	const isManage = action === "manage" || action === "Manage…";
+	const actionText = isConnect ? t("settings.action.connect") : isManage ? t("settings.action.manage") : action;
+	const actionClass = isConnect ? "lh-connect-btn" : isManage ? "lh-manage-btn" : "";
 	return (
 		<div className="flex flex-wrap items-center gap-3" data-testid={testid}>
 			<span className={labelClassName ?? "font-ui text-xs text-foreground"}>{label}</span>
 			{children}
-			<Button type="button" size="xs" variant={action === "Connect" ? "outline" : "ghost"} className={`cursor-pointer disabled:cursor-not-allowed ltr:ml-auto rtl:mr-auto ${action === "Connect" ? "" : "text-muted-foreground hover:text-foreground"} ${actionClass}`} data-testid={actionTestid} disabled={disabled} onClick={onAction}>
-				{action}
+			<Button type="button" size="xs" variant={isConnect ? "outline" : "ghost"} className={`cursor-pointer disabled:cursor-not-allowed ltr:ml-auto rtl:mr-auto ${isConnect ? "" : "text-muted-foreground hover:text-foreground"} ${actionClass}`} data-testid={actionTestid} disabled={disabled} onClick={onAction}>
+				{actionText}
 			</Button>
 		</div>
 	);
