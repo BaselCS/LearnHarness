@@ -1,0 +1,72 @@
+[
+  {
+    "id": "fastapi_async_event_loop_single",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
+    "fields": {
+      "Text": "في FastAPI، يعمل مسار {{c1::async def}} مباشرة على مسار الـ Event Loop الأحادي، وأي عملية حاجبة بداخله تجمد السيرفر.",
+      "Extra": "لذلك لا يجب وضع أي كود متزامن (blocking) داخل async def دون تفويضه."
+    },
+    "tags": ["fastapi", "asyncio", "event-loop"]
+  },
+  {
+    "id": "fastapi_sync_bridge_in_async",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
+    "fields": {
+      "Text": "لتشغيل دالة متزامنة حاجبة داخل مسار async def دون تجميد الـ Event Loop، يجب تغليفها باستخدام {{c1::await run_in_threadpool(func, *args)}} أو {{c1::await asyncio.to_thread(func, *args)}}.",
+      "Extra": "يقوم هذا بنقل التنفيذ الحاجب إلى الـ Threadpool الخاص بـ AnyIO مع إبقاء الـ Event Loop حراً."
+    },
+    "tags": ["fastapi", "asyncio", "threadpool"]
+  },
+  {
+    "id": "fastapi_event_loop_cooperative",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
+    "fields": {
+      "Text": "في FastAPI، يعمل مسار async def بتعاون تشاركي ولا يفسح المجال للمهام الأخرى إلا عند وجود {{c1::نقاط await صريحة}} فقط.",
+      "Extra": "غياب نقاط الـ await في مسار async def يجعل المهمة تحتكر الخيط الرئيسي بالكامل وتمنع معالجة باقي الطلبات."
+    },
+    "tags": ["fastapi", "asyncio", "event-loop"]
+  },
+  {
+    "id": "fastapi_threadpool_delegation",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
+    "fields": {
+      "Text": "عند تعريف مسار في FastAPI باستخدام دالة {{c1::def عادية (بدون async)}}، يقوم السيرفر تلقائياً بتشغيلها داخل {{c2::مجمع خيوط معالجة منفصل (Threadpool via AnyIO)}}.",
+      "Extra": "هذا يحمي الـ Event Loop الرئيسي من التجميد حتى لو كانت الدالة تستخدم دوال حاجبة مثل time.sleep أو requests."
+    },
+    "tags": ["fastapi", "threadpool", "anyio"]
+  },
+  {
+    "id": "fastapi_asyncio_gather",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
+    "fields": {
+      "Text": "لتشغيل عدة دوال coroutines مستقلة بالتوازي واختصار وقت الاستجابة لأطول طلب فقط، نمررها دون await إلى {{c1::await asyncio.gather(coro1, coro2, ...)}}.",
+      "Extra": "تحذير: لا تضع await على الدوال داخل gather، لأن ذلك سيجعلها تنفذ بالتتابع قبل استدعاء gather أصلاً."
+    },
+    "tags": ["fastapi", "asyncio", "concurrency"]
+  },
+  {
+    "id": "fastapi_async_vs_sync_db_drivers",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
+    "fields": {
+      "Text": "استخدام مشغلات قواعد البيانات المتزامنة مثل psycopg2 داخل async def يجمد السيرفر؛ والحل السليم معها هو استخدام {{c1::def عادية}} بدلاً من async.",
+      "Extra": "إذا أردت استخدام مسارات async def فيجب استخدام مشغلات غير متزامنة مثل asyncpg مع AsyncSession."
+    },
+    "tags": ["fastapi", "database", "sqlalchemy", "asyncpg"]
+  },
+  {
+    "id": "fastapi_async_decision_matrix",
+    "deckName": "تقنية::FastAPI",
+    "modelName": "قالب بطاقات النص المخفي",
+    "fields": {
+      "Text": "في FastAPI، القاعدة المعمارية: استخدم async def للمكتبات {{c1::غير المتزامنة أصلاً (مثل httpx)}}، واستخدم def عادية للمكتبات {{c2::المتزامنة الحاجبة (مثل requests و boto3)}}.",
+      "Extra": "وللعمليات الحسابية الثقيلة (CPU-bound)، استخدم ProcessPoolExecutor لتجاوز قفل الـ GIL."
+    },
+    "tags": ["fastapi", "asyncio", "best-practices"]
+  }
+]

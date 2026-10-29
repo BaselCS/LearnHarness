@@ -23,6 +23,7 @@ import { readTool } from "./tools/read.ts";
 import { lsTool } from "./tools/ls.ts";
 import { findTool } from "./tools/find.ts";
 import { grepTool } from "./tools/grep.ts";
+import { syncAnkiCardTool } from "./tools/anki-tool.ts";
 import { healToolRecord } from "./tools/heal.ts";
 import type { GraphStore } from "../core/ports.ts";
 
@@ -449,6 +450,7 @@ export function createTeacherTools(
 			{
 			...quizzing,
 			ask_user_question: askUserQuestionTool,
+			sync_anki_card: syncAnkiCardTool,
 			// The learner-filesystem set is always-on (user-decided 2026-09,
 			// sources v1): the teacher locates and reads learner-referenced
 			// files on its own terms — nothing auto-injects. Read-only by
